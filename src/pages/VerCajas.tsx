@@ -1,5 +1,6 @@
 import Button from '../components/Button';
-import DataTable, { Column } from '../components/DataTable';
+import DataTable from '../components/DataTable';
+import type { Column } from '../components/DataTable';
 import StatusChip from '../components/StatusChip';
 import Input from '../components/Input';
 import './Pages.css';

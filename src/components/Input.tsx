@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, SelectHTMLAttributes } from 'react';
+import type { InputHTMLAttributes, SelectHTMLAttributes } from 'react';
 
 interface BaseProps {
   label: string;
