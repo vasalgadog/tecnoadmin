@@ -1,0 +1,38 @@
+.data-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  background-color: var(--surface);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table th {
+  background-color: var(--surface-container-highest);
+  color: var(--on-surface-variant);
+  font-family: 'Work Sans', sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  text-transform: uppercase;
+  padding: 16px;
+}
+
+.data-table td {
+  padding: 16px;
+  color: var(--on-surface);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+}
+
+/* The No-Line Rule: use alternating backgrounds instead of borders */
+.data-table tbody tr:nth-child(even) {
+  background-color: var(--surface-container-low);
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--primary-fixed);
+}
