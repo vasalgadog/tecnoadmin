@@ -2,14 +2,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
 import './App.css';
 
-// Mock pages for now
-const Login = () => <div className="p-8"><h1>Login</h1></div>;
-const Inicio = () => <div className="p-8"><h1>Inicio</h1></div>;
-const VerCajas = () => <div className="p-8"><h1>Ver Cajas</h1></div>;
-const CerrarCaja = () => <div className="p-8"><h1>Cerrar Caja</h1></div>;
-const CantidadDePan = () => <div className="p-8"><h1>Cantidad de Pan</h1></div>;
-const VerPedidos = () => <div className="p-8"><h1>Ver Pedidos</h1></div>;
-const CalendarioPedidos = () => <div className="p-8"><h1>Calendario de Pedidos</h1></div>;
+import Login from './pages/Login';
+import Inicio from './pages/Inicio';
+import VerCajas from './pages/VerCajas';
+import CerrarCaja from './pages/CerrarCaja';
+import CantidadDePan from './pages/CantidadDePan';
+import VerPedidos from './pages/VerPedidos';
+import CalendarioPedidos from './pages/CalendarioPedidos';
 
 function App() {
   return (
