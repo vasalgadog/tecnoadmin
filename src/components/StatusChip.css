@@ -1,0 +1,26 @@
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chip-processing {
+  background-color: var(--tertiary-container);
+  color: #fff;
+}
+
+.chip-done {
+  background-color: var(--secondary-fixed-dim);
+  color: var(--on-secondary-fixed);
+}
+
+.chip-pending {
+  background-color: var(--surface-container-highest);
+  color: var(--on-surface-variant);
+}
