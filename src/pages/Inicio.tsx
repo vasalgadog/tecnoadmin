@@ -1,5 +1,4 @@
 import Button from '../components/Button';
-import BatchProgressCard from '../components/BatchProgressCard';
 import Input from '../components/Input';
 import './Pages.css';
 
@@ -8,67 +7,82 @@ export default function Inicio() {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1 className="display">Inicio</h1>
+          <h1 className="display">Dashboard Overview</h1>
           <p className="subtitle">Tecnopan Artisanal Management</p>
         </div>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <Button variant="secondary">Register Expense</Button>
+          <Button variant="primary">Nueva Producción</Button>
+        </div>
       </div>
 
-      <div className="dashboard-grid">
-        {/* Bread Registration */}
-        <div className="card surface-container-lowest ghost-border">
-          <h2 className="display" style={{ fontSize: '20px', marginBottom: '8px' }}>Bread Registration</h2>
-          <p className="subtitle" style={{ marginBottom: '24px' }}>Quick log for daily production</p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}>
-                <Input label="Hallulla Stock (kg)" type="number" placeholder="142" />
-              </div>
-              <Button variant="primary" style={{ marginBottom: '2px' }}>Guardar</Button>
-            </div>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
-              <div style={{ flex: 1 }}>
-                <Input label="Francés Stock (kg)" type="number" placeholder="89" />
-              </div>
-              <Button variant="primary" style={{ marginBottom: '2px' }}>Guardar</Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Order Registration */}
-        <div className="card surface-container-lowest ghost-border">
-          <h2 className="display" style={{ fontSize: '20px', marginBottom: '8px' }}>Order Registration</h2>
-          <p className="subtitle" style={{ marginBottom: '24px' }}>Manage custom artisanal requests</p>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Input as="select" label="Producto" options={[
-              { label: 'Sourdough B-12', value: 'sourdough' },
-              { label: 'Marraqueta', value: 'marraqueta' },
-            ]} />
-            <Input label="Cantidad solicitada" type="number" placeholder="0" />
-            <Button variant="primary" style={{ marginTop: '8px' }}>Añadir al pedido</Button>
-          </div>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(400px, 1fr) minmax(400px, 1fr)', gap: '32px' }}>
         
-        {/* Expenses */}
-        <div className="card surface-container-lowest ghost-border">
-          <h2 className="display" style={{ fontSize: '20px', marginBottom: '8px' }}>Register Expense</h2>
-          <p className="subtitle" style={{ marginBottom: '24px' }}>Log minor cashouts</p>
+        {/* Bread Registration Panel */}
+        <div className="card surface-container-lowest ghost-border" style={{ alignSelf: 'start' }}>
+          <h2 className="display" style={{ fontSize: '20px', marginBottom: '8px' }}>Bread Registration</h2>
+          <p className="subtitle" style={{ marginBottom: '32px' }}>Quick log for daily production</p>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Input label="Monto ($)" type="number" placeholder="0" />
-            <Input label="Motivo" type="text" placeholder="Ej. Insumos menores" />
-            <Button variant="secondary" style={{ marginTop: '8px' }}>Registrar Gasto</Button>
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
+             <div className="card surface-container-lowest ghost-border ambient-shadow" style={{ flex: 1, padding: '16px 24px' }}>
+               <h3 style={{ color: 'var(--on-surface-variant)', fontSize: '14px', marginBottom: '8px', fontWeight: 500 }}>Hallulla Stock</h3>
+               <p className="display" style={{ fontSize: '32px', margin: 0, color: 'var(--primary)' }}>142 kg</p>
+             </div>
+             <div className="card surface-container-lowest ghost-border ambient-shadow" style={{ flex: 1, padding: '16px 24px' }}>
+               <h3 style={{ color: 'var(--on-surface-variant)', fontSize: '14px', marginBottom: '8px', fontWeight: 500 }}>Francés Stock</h3>
+               <p className="display" style={{ fontSize: '32px', margin: 0, color: 'var(--secondary)' }}>89 kg</p>
+             </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: 'var(--surface)', padding: '24px', borderRadius: '12px', border: '1px solid var(--outline-variant)' }}>
+             <Input as="select" label="Seleccionar Pan" options={[
+               { label: 'Hallulla', value: 'hallulla' }, 
+               { label: 'Francés', value: 'frances' }
+             ]} />
+             <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
+                <div style={{ flex: 1 }}>
+                  <Input label="Kilos Producidos" type="number" placeholder="0" />
+                </div>
+                <Button variant="primary">Registrar Stock</Button>
+             </div>
           </div>
         </div>
-      </div>
 
-      <div className="section mt-8">
-        <h2 className="display" style={{ fontSize: '24px', marginBottom: '16px' }}>Progreso de Lotes Activos</h2>
-        <div className="batch-list mt-4">
-          <BatchProgressCard title="Sourdough Batch B-12" specs="Temp: 220°C | Tiempo Restante: 12 min" progress={80} />
-          <BatchProgressCard title="Marraqueta Lote 5" specs="Temp: 200°C | Tiempo Restante: 5 min" progress={92} />
+        {/* Order Registration Panel */}
+        <div className="card surface-container-lowest ghost-border" style={{ alignSelf: 'start' }}>
+          <h2 className="display" style={{ fontSize: '20px', marginBottom: '8px' }}>Order Registration</h2>
+          <p className="subtitle" style={{ marginBottom: '32px' }}>Manage custom artisanal requests</p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <Input label="Nombre del Cliente" type="text" placeholder="Ej. Panadería Central" />
+              <Input type="date" label="Fecha de Entrega" />
+            </div>
+            
+            <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '24px' }}>
+               <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Products</h3>
+               <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', marginBottom: '16px', fontStyle: 'italic' }}>No other items added</p>
+               
+               <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', backgroundColor: 'var(--surface-container-low)', padding: '16px', borderRadius: '8px' }}>
+                 <div style={{ flex: 2 }}>
+                   <Input as="select" label="Artículo" options={[
+                     { label: 'Sourdough B-12', value: 'sourdough' },
+                     { label: 'Marraqueta Premium', value: 'marraqueta' }
+                   ]} />
+                 </div>
+                 <div style={{ width: '100px' }}>
+                   <Input label="Cant." type="number" placeholder="1" />
+                 </div>
+                 <Button variant="secondary" type="button" style={{ marginBottom: '2px' }}>Agregar</Button>
+               </div>
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '24px', marginTop: '8px' }}>
+              <Button variant="primary" className="w-full">Generar Orden</Button>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   );
