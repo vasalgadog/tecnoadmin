@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e8e8e5",
+                        "outline": "#86736b",
+                        "tertiary": "#583d37",
+                        "tertiary-fixed-dim": "#e5beb5",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#ffdbcc",
+                        "on-error": "#ffffff",
+                        "surface": "#f9f9f6",
+                        "tertiary-fixed": "#ffdad2",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#ffb693",
+                        "outline-variant": "#d9c2b8",
+                        "surface-variant": "#e2e3e0",
+                        "surface-tint": "#904c27",
+                        "inverse-primary": "#ffb693",
+                        "on-tertiary-fixed-variant": "#5c403a",
+                        "on-surface": "#1a1c1b",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary": "#703210",
+                        "secondary-fixed": "#ffddb9",
+                        "on-primary-fixed": "#351000",
+                        "on-primary-container": "#ffc8af",
+                        "surface-dim": "#dadad7",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#733512",
+                        "secondary-container": "#fec178",
+                        "on-tertiary-container": "#f3cbc2",
+                        "on-background": "#1a1c1b",
+                        "inverse-surface": "#2f312f",
+                        "inverse-on-surface": "#f1f1ee",
+                        "secondary": "#825516",
+                        "primary-container": "#8d4925",
+                        "tertiary-container": "#72544d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#54433c",
+                        "on-secondary-fixed-variant": "#663e00",
+                        "on-secondary-container": "#784d0d",
+                        "secondary-fixed-dim": "#f8bb73",
+                        "background": "#f9f9f6",
+                        "surface-container-highest": "#e2e3e0",
+                        "surface-bright": "#f9f9f6",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#eeeeeb",
+                        "on-secondary-fixed": "#2b1700",
+                        "on-tertiary-fixed": "#2b1611",
+                        "surface-container-low": "#f4f4f1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Work Sans"],
+                        "label": ["Work Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#f4f4f1] dark:bg-stone-900 flex flex-col py-6 z-50">
+<div class="px-6 mb-10">
+<h1 class="text-2xl font-bold text-[#703210] dark:text-[#fec178] tracking-tight">Tecnopan</h1>
+<p class="text-xs font-medium text-stone-500 uppercase tracking-widest mt-1">Artisanal Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-6 py-3 bg-[#ffdbcc] dark:bg-[#703210]/30 text-[#703210] dark:text-[#fec178] font-bold rounded-r-full transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-label uppercase tracking-wide">Home</span>
+</a>
+<a class="flex items-center px-6 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#f9f9f6] dark:hover:bg-stone-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="receipt_long">receipt_long</span>
+<span class="text-sm font-label uppercase tracking-wide">View Orders</span>
+</a>
+<a class="flex items-center px-6 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#f9f9f6] dark:hover:bg-stone-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="bakery_dining">bakery_dining</span>
+<span class="text-sm font-label uppercase tracking-wide">View Bread Quantity</span>
+</a>
+<a class="flex items-center px-6 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#f9f9f6] dark:hover:bg-stone-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="payments">payments</span>
+<span class="text-sm font-label uppercase tracking-wide">View Tills</span>
+</a>
+<a class="flex items-center px-6 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#f9f9f6] dark:hover:bg-stone-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="lock_clock">lock_clock</span>
+<span class="text-sm font-label uppercase tracking-wide">Close Till</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="flex items-center w-full px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-[#f9f9f6] dark:hover:bg-stone-800 transition-colors duration-200 rounded-lg">
+<span class="material-symbols-outlined mr-3" data-icon="logout">logout</span>
+<span class="text-sm font-label uppercase tracking-wide">Logout</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 min-h-screen relative">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#f9f9f6]/80 dark:bg-stone-950/80 backdrop-blur-md flex justify-between items-center px-8 z-40 border-b border-surface-container-high">
+<div class="flex items-center">
+<h2 class="text-xl font-headline font-semibold text-[#703210] dark:text-[#fec178]">Dashboard Overview</h2>
+</div>
+<div class="flex items-center space-x-6">
+<button class="bg-primary text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center">
+<span class="material-symbols-outlined text-sm mr-2" data-icon="add_circle">add_circle</span>
+                    Register Expense
+                </button>
+<div class="flex items-center space-x-4 text-stone-500">
+<button class="material-symbols-outlined hover:opacity-80 transition-opacity" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined hover:opacity-80 transition-opacity" data-icon="settings">settings</button>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="mt-16 p-8 space-y-8">
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Panel 1: Bread Registration -->
+<section class="lg:col-span-5 space-y-6">
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_12px_32px_rgba(115,53,18,0.06)]">
+<header class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-xl font-headline font-bold text-on-surface">Bread Registration</h2>
+<p class="text-sm text-outline">Quick log for daily production</p>
+</div>
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="bakery_dining">bakery_dining</span>
+</header>
+<!-- Integrated Inventory Totals -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="bg-surface-container-low p-4 rounded-xl border-l-4 border-secondary-fixed-dim">
+<p class="text-[10px] font-label uppercase tracking-tighter text-outline mb-1">Hallulla Stock</p>
+<h3 class="text-xl font-headline font-extrabold text-on-surface">142 <span class="text-xs font-normal text-outline">kg</span></h3>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border-l-4 border-secondary-fixed-dim">
+<p class="text-[10px] font-label uppercase tracking-tighter text-outline mb-1">Francés Stock</p>
+<h3 class="text-xl font-headline font-extrabold text-on-surface">89 <span class="text-xs font-normal text-outline">kg</span></h3>
+</div>
+</div>
+<!-- Stock Actual Input -->
+<div class="space-y-2 mb-6">
+<label class="text-xs font-label uppercase tracking-widest text-outline font-semibold">Stock Actual (kg)</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-outline material-symbols-outlined text-sm" data-icon="scale">scale</span>
+<input class="w-full bg-surface-container-high border-none rounded-lg py-3 pl-10 pr-4 text-sm font-bold focus:ring-2 focus:ring-primary placeholder:text-outline-variant" placeholder="Enter weight..." type="number"/>
+</div>
+</div>
+<!-- Bread Type Selection -->
+<div class="space-y-4 mb-6">
+<label class="text-xs font-label uppercase tracking-widest text-outline font-semibold">Select Variety</label>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center gap-3 p-3 rounded-lg bg-primary-fixed text-on-primary-fixed border-2 border-primary transition-all">
+<span class="material-symbols-outlined text-2xl" data-icon="radio_button_checked">radio_button_checked</span>
+<span class="font-headline font-bold text-sm">Hallulla</span>
+</button>
+<button class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-high text-on-surface-variant hover:bg-surface-variant transition-all group">
+<span class="material-symbols-outlined text-2xl text-outline group-hover:text-primary transition-colors" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="font-headline font-bold text-sm">Francés</span>
+</button>
+</div>
+</div>
+<!-- Quantity Selection -->
+<div class="space-y-4">
+<label class="text-xs font-label uppercase tracking-widest text-outline font-semibold">Number of Boxes</label>
+<div class="grid grid-cols-5 gap-2">
+<button class="py-4 rounded-lg bg-surface-container-high font-bold hover:bg-secondary-container transition-colors">1</button>
+<button class="py-4 rounded-lg bg-surface-container-high font-bold hover:bg-secondary-container transition-colors">2</button>
+<button class="py-4 rounded-lg bg-surface-container-high font-bold hover:bg-secondary-container transition-colors">3</button>
+<button class="py-4 rounded-lg bg-surface-container-high font-bold hover:bg-secondary-container transition-colors">4</button>
+<div class="relative">
+<input class="w-full h-full py-4 rounded-lg bg-surface-container-highest border-none text-center font-bold focus:ring-2 focus:ring-primary placeholder:text-outline-variant" placeholder="N" type="number"/>
+</div>
+</div>
+</div>
+<button class="w-full mt-10 bg-primary text-white py-4 rounded-lg font-bold shadow-lg hover:scale-[1.01] transition-transform flex justify-center items-center">
+<span class="material-symbols-outlined mr-2" data-icon="task_alt">task_alt</span>
+                            Log Production Batch
+                        </button>
+</div>
+</section>
+<!-- Panel 2: Order Registration -->
+<section class="lg:col-span-7">
+<div class="bg-surface-container-low p-8 rounded-xl">
+<header class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-xl font-headline font-bold text-on-surface">Order Registration</h2>
+<p class="text-sm text-outline">Manage custom artisanal requests</p>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="list_alt">list_alt</span>
+</div>
+</header>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Customer Info -->
+<div class="space-y-1">
+<label class="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Customer Name</label>
+<input class="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 transition-colors" placeholder="e.g. John Doe" type="text"/>
+</div>
+<div class="space-y-1">
+<label class="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Phone Number</label>
+<input class="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 transition-colors" placeholder="+56 9 ..." type="tel"/>
+</div>
+<div class="space-y-1">
+<label class="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Delivery Date</label>
+<input class="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 transition-colors" type="date"/>
+</div>
+<div class="space-y-1">
+<label class="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Delivery Time</label>
+<input class="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 transition-colors" type="time"/>
+</div>
+</div>
+<!-- Payment Status -->
+<div class="space-y-3">
+<label class="block text-[11px] font-label uppercase tracking-wider text-outline">Payment Status</label>
+<div class="flex space-x-4">
+<label class="flex-1 flex items-center justify-center py-3 px-4 rounded-lg bg-surface-container-lowest cursor-pointer border-2 border-transparent has-[:checked]:border-secondary-container transition-all">
+<input class="hidden peer" name="payment" type="radio"/>
+<span class="text-sm font-medium">Abono</span>
+</label>
+<label class="flex-1 flex items-center justify-center py-3 px-4 rounded-lg bg-surface-container-lowest cursor-pointer border-2 border-transparent has-[:checked]:border-secondary-container transition-all">
+<input class="hidden peer" name="payment" type="radio"/>
+<span class="text-sm font-medium">Pagado</span>
+</label>
+</div>
+</div>
+<!-- Dynamic Product Section -->
+<div class="pt-4 space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-xs font-label uppercase tracking-widest text-outline font-bold">Products</h3>
+<button class="text-primary flex items-center text-xs font-bold hover:underline" type="button">
+<span class="material-symbols-outlined text-sm mr-1" data-icon="add">add</span> Add Product
+                                    </button>
+</div>
+<div class="space-y-3">
+<!-- Product Row -->
+<div class="flex items-center gap-4 bg-surface-container-lowest p-4 rounded-xl">
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm" data-icon="search">search</span>
+<input class="w-full bg-surface border-none rounded-lg py-2 pl-9 pr-4 text-sm focus:ring-1 focus:ring-primary" placeholder="Search product..." type="text"/>
+</div>
+<div class="w-24">
+<input class="w-full bg-surface border-none rounded-lg py-2 text-sm text-center focus:ring-1 focus:ring-primary" placeholder="Qty" type="number"/>
+</div>
+<button class="text-error opacity-50 hover:opacity-100 transition-opacity" type="button">
+<span class="material-symbols-outlined" data-icon="delete_outline">delete_outline</span>
+</button>
+</div>
+<!-- Empty State placeholder -->
+<div class="border-2 border-dashed border-outline-variant/30 rounded-xl py-6 flex flex-col items-center justify-center text-outline text-center">
+<p class="text-xs font-medium">No other items added</p>
+</div>
+</div>
+</div>
+<div class="pt-6 border-t border-outline-variant/10">
+<button class="w-full py-4 rounded-lg bg-primary text-white font-bold hover:opacity-90 transition-opacity flex justify-center items-center shadow-md" type="submit">
+<span class="material-symbols-outlined mr-2" data-icon="shopping_cart_checkout">shopping_cart_checkout</span>
+                                    Finalize Order
+                                </button>
+</div>
+</form>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Modal: Register Expense (Simulated via overlay) -->
+<div class="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden">
+<div class="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-8">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-2xl font-headline font-extrabold text-primary">Register Expense</h2>
+<button class="material-symbols-outlined text-outline" data-icon="close">close</button>
+</div>
+<div class="space-y-6">
+<div class="space-y-1">
+<label class="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Valor</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-outline">$</span>
+<input class="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-lg font-bold py-4 pl-8" placeholder="0.00" type="number"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Descripción</label>
+<textarea class="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 resize-none" placeholder="Explain the expense..." rows="3"></textarea>
+</div>
+<div class="flex gap-4">
+<button class="flex-1 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors">Cancel</button>
+<button class="flex-1 py-3 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity">Save Expense</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>
