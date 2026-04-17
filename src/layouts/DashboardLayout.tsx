@@ -64,24 +64,24 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="bg-surface text-on-surface flex h-screen overflow-hidden font-body">
+    <div className="bg-surface text-on-surface flex h-screen overflow-hidden font-body relative lg:static">
+      
+      {/* Mobile Backdrop overlay */}
+      {isSidebarExpanded && (
+        <div 
+          className="fixed inset-0 bg-black/30 z-[45] max-[499px]:block hidden backdrop-blur-sm transition-opacity" 
+          onClick={() => setIsSidebarExpanded(false)} 
+        />
+      )}
+
       {/* SideNavBar */}
-      <aside className={`h-screen fixed left-0 top-0 bg-[#f4f4f1] border-r border-[#d9c2b8]/20 flex flex-col py-6 z-50 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-64' : 'w-20 xl:w-64'}`}>
-        <div className={`mb-10 flex items-center ${isSidebarExpanded ? 'px-6' : 'px-0 xl:px-6 justify-center xl:justify-start'}`}>
-          <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
-            {isSidebarExpanded ? (
-              <>
-                <h1 className="text-2xl font-bold text-[#703210] font-headline tracking-tight">Tecnopan</h1>
-                <p className="text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1">Artisanal Management</p>
-              </>
-            ) : (
-              <>
-                <h1 className="text-2xl font-bold text-[#703210] font-headline tracking-tight xl:block hidden">Tecnopan</h1>
-                <p className="text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1 xl:block hidden">Artisanal Management</p>
-                {/* Icon-only fallback when collapsed */}
-                <span className="material-symbols-outlined text-3xl text-[#703210] block xl:hidden" style={{ fontVariationSettings: "'FILL' 1" }}>bakery_dining</span>
-              </>
-            )}
+      <aside className={`h-screen fixed left-0 top-0 bg-[#f4f4f1] border-r border-[#d9c2b8]/20 flex flex-col py-6 z-50 transition-all duration-300 ease-in-out transform max-[499px]:-translate-x-full max-[499px]:w-64 min-[500px]:translate-x-0 min-[500px]:w-20 xl:w-64 ${isSidebarExpanded ? '!translate-x-0 !w-64' : ''}`}>
+        <div className={`mb-10 flex items-center px-0 xl:px-6 justify-center xl:justify-start max-[499px]:px-6 max-[499px]:justify-start ${isSidebarExpanded ? '!px-6 !justify-start' : ''}`}>
+          <div className="flex flex-col items-center xl:items-start text-center xl:text-left max-[499px]:items-start max-[499px]:text-left">
+            <h1 className={`text-2xl font-bold text-[#703210] font-headline tracking-tight hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Tecnopan</h1>
+            <p className={`text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1 hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Artisanal Management</p>
+            {/* Icon-only fallback when collapsed */}
+            <span className={`material-symbols-outlined text-3xl text-[#703210] block xl:hidden max-[499px]:hidden ${isSidebarExpanded ? '!hidden' : ''}`} style={{ fontVariationSettings: "'FILL' 1" }}>bakery_dining</span>
           </div>
         </div>
         
@@ -90,30 +90,30 @@ export default function DashboardLayout() {
             const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
             const baseClasses = "flex items-center py-3 transition-colors duration-200 group active:scale-[0.98]";
             const activeClasses = isActive ? "bg-[#ffdbcc] text-[#703210] font-bold" : "text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6]";
-            const layoutClasses = isSidebarExpanded ? "px-6 rounded-r-full mr-4" : "justify-center xl:px-6 xl:justify-start xl:rounded-r-full xl:mr-4";
+            const layoutClasses = "justify-center xl:px-6 xl:justify-start xl:rounded-r-full xl:mr-4 max-[499px]:px-6 max-[499px]:justify-start max-[499px]:rounded-r-full max-[499px]:mr-4";
             
             return (
-              <div key={item.path} className={`${isSidebarExpanded ? 'pr-4' : 'xl:pr-4'}`}>
-                <Link to={item.path} className={`${baseClasses} ${activeClasses} ${layoutClasses}`} title={item.label}>
-                  <span className={`material-symbols-outlined ${isSidebarExpanded ? 'mr-3' : 'mr-0 xl:mr-3'}`} style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
-                  <span className={`text-sm font-label uppercase tracking-wide truncate ${isSidebarExpanded ? 'block' : 'hidden xl:block'}`}>{item.label}</span>
+              <div key={item.path} className={`xl:pr-4 max-[499px]:pr-4 ${isSidebarExpanded ? '!pr-4' : ''}`}>
+                <Link to={item.path} className={`${baseClasses} ${activeClasses} ${layoutClasses} ${isSidebarExpanded ? '!px-6 !justify-start !rounded-r-full !mr-4' : ''}`} title={item.label}>
+                  <span className={`material-symbols-outlined mr-0 xl:mr-3 max-[499px]:mr-3 ${isSidebarExpanded ? '!mr-3' : ''}`} style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
+                  <span className={`text-sm font-label uppercase tracking-wide truncate hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>{item.label}</span>
                 </Link>
               </div>
             );
           })}
         </nav>
         
-        <div className={`mt-auto pt-4 border-t border-outline-variant/10 ${isSidebarExpanded ? 'px-6' : 'px-2 xl:px-6'}`}>
-          <button className={`flex items-center py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg ${isSidebarExpanded ? 'w-full px-4' : 'justify-center w-full xl:justify-start xl:px-4'}`} title="Logout">
-            <span className={`material-symbols-outlined ${isSidebarExpanded ? 'mr-3' : 'mr-0 xl:mr-3'}`}>logout</span>
-            <span className={`text-sm font-label uppercase tracking-wide ${isSidebarExpanded ? 'block' : 'hidden xl:block'}`}>Logout</span>
+        <div className={`mt-auto pt-4 border-t border-outline-variant/10 px-2 xl:px-6 max-[499px]:px-6 ${isSidebarExpanded ? '!px-6' : ''}`}>
+          <button className={`flex items-center py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg justify-center w-full xl:justify-start xl:px-4 max-[499px]:justify-start max-[499px]:px-4 ${isSidebarExpanded ? '!w-full !justify-start !px-4' : ''}`} title="Logout">
+            <span className={`material-symbols-outlined mr-0 xl:mr-3 max-[499px]:mr-3 ${isSidebarExpanded ? '!mr-3' : ''}`}>logout</span>
+            <span className={`text-sm font-label uppercase tracking-wide hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 min-h-screen relative flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20 xl:ml-64'}`}>
-        <header className={`fixed top-0 right-0 h-16 bg-[#f9f9f6]/95 backdrop-blur-md flex justify-between items-center px-4 md:px-8 z-40 border-b border-surface-container-high transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-[calc(100%-16rem)]' : 'w-[calc(100%-5rem)] xl:w-[calc(100%-16rem)]'}`}>
+      <main className={`flex-1 min-h-screen relative flex flex-col overflow-hidden transition-all duration-300 ease-in-out max-[499px]:ml-0 min-[500px]:ml-20 xl:ml-64 ${isSidebarExpanded ? 'min-[500px]:!ml-64' : ''}`}>
+        <header className={`fixed top-0 right-0 h-16 bg-[#f9f9f6]/95 backdrop-blur-md flex justify-between items-center px-4 md:px-8 z-40 border-b border-surface-container-high transition-all duration-300 ease-in-out max-[499px]:w-full min-[500px]:w-[calc(100%-5rem)] xl:w-[calc(100%-16rem)] ${isSidebarExpanded ? 'min-[500px]:!w-[calc(100%-16rem)]' : ''}`}>
           <div className="flex items-center gap-3">
             {/* Hamburger Toggle */}
             <button onClick={toggleSidebar} className="p-2 rounded-lg text-stone-500 hover:text-primary hover:bg-surface-container-high transition-colors xl:hidden flex items-center justify-center">
