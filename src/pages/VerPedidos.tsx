@@ -18,73 +18,80 @@ export default function VerPedidos() {
     <>
       <div className="p-8 pb-12">
         
-        {/* Header Tabs & Filters */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-          <div className="flex bg-surface-container-highest p-1.5 rounded-xl w-fit shadow-sm border border-outline-variant/30">
+        {/* Header Actions & Tools Toolbar */}
+        <div className="flex justify-end gap-3 mb-8">
+          
+          {/* View Toggle */}
+          <div className="flex bg-surface-container-highest p-1 rounded-lg w-fit shadow-sm border border-outline-variant/30 text-sm">
             <button 
               onClick={() => setActiveTab('calendar')}
-              className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center ${activeTab === 'calendar' ? 'bg-primary text-white shadow-md' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}
+              className={`px-4 py-1.5 rounded-md font-bold transition-all flex items-center ${activeTab === 'calendar' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
             >
-              <span className="material-symbols-outlined text-[18px] mr-2">calendar_month</span>
-              Order Calendar
+              <span className="material-symbols-outlined text-[16px] mr-1.5">calendar_month</span>
+              Calendar
             </button>
             <button 
               onClick={() => setActiveTab('table')}
-              className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center ${activeTab === 'table' ? 'bg-primary text-white shadow-md' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low'}`}
+              className={`px-4 py-1.5 rounded-md font-bold transition-all flex items-center ${activeTab === 'table' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
             >
-              <span className="material-symbols-outlined text-[18px] mr-2">table_rows</span>
-              Detailed List
+              <span className="material-symbols-outlined text-[16px] mr-1.5">table_rows</span>
+              Details
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="bg-surface-container-high text-on-surface hover:text-primary px-4 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-all shadow-sm">
-              <span className="material-symbols-outlined text-[18px]">filter_list</span>
-              Filters
-            </button>
-            <button className="bg-[#fec178] text-[#784d0d] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
-              <span className="material-symbols-outlined text-[18px]">print</span>
-              Print Report
-            </button>
-          </div>
+          <div className="w-px bg-outline-variant/30 my-1 mx-1"></div>
+
+          {/* Action Buttons */}
+          <button className="bg-surface-container-high text-on-surface hover:text-primary px-4 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-all shadow-sm">
+            <span className="material-symbols-outlined text-[18px]">filter_list</span>
+            Filters
+          </button>
+          <button className="bg-[#fec178] text-[#784d0d] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+            <span className="material-symbols-outlined text-[18px]">print</span>
+            Print Report
+          </button>
         </div>
 
         {activeTab === 'calendar' ? (
-          <div className="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/30 p-8">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-headline font-extrabold text-primary">October 2023</h2>
-              <div className="flex space-x-2">
-                <button className="p-2 rounded-full border border-outline-variant/50 text-outline hover:text-primary hover:border-primary transition-all">
-                  <span className="material-symbols-outlined">chevron_left</span>
+          <div className="bg-surface-container-lowest rounded-2xl shadow border border-outline-variant/40 p-8">
+            
+            {/* Calendar Controls Nav */}
+            <div className="flex justify-center items-center mb-8">
+              <div className="flex items-center gap-6 bg-surface-container-low rounded-full px-2 py-1 shadow-sm border border-outline-variant/20">
+                <button className="p-2 rounded-full text-outline hover:text-primary hover:bg-surface-container-high transition-all flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                 </button>
-                <button className="p-2 rounded-full border border-outline-variant/50 text-outline hover:text-primary hover:border-primary transition-all">
-                  <span className="material-symbols-outlined">chevron_right</span>
+                <div className="w-36 text-center">
+                  <h2 className="text-lg font-headline font-extrabold text-on-surface uppercase tracking-widest">October 2023</h2>
+                </div>
+                <button className="p-2 rounded-full text-outline hover:text-primary hover:bg-surface-container-high transition-all flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-px bg-outline-variant/20 rounded-xl overflow-hidden border border-outline-variant/20">
+            <div className="grid grid-cols-7 gap-px bg-outline-variant/30 rounded-xl overflow-hidden border-2 border-outline-variant/30">
               {/* Header */}
               {daysOfWeek.map(day => (
-                <div key={day} className="bg-surface-container-highest py-3 text-center text-[10px] font-label font-bold uppercase tracking-wider text-outline">
+                <div key={day} className="bg-surface-container py-3 text-center text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant">
                   {day}
                 </div>
               ))}
               
               {/* Grid */}
               {calendarDays.map((day, idx) => (
-                <div key={idx} className={`min-h-[120px] p-3 transition-colors hover:bg-primary-fixed/20 group cursor-pointer ${day.isCurrentMonth ? 'bg-surface' : 'bg-surface-container-highest/20'}`}>
-                  <span className={`text-sm font-headline font-bold ${day.isCurrentMonth ? 'text-on-surface' : 'text-outline-variant'}`}>
+                <div key={idx} className={`min-h-[120px] p-2 sm:p-3 transition-colors hover:bg-primary/5 group cursor-pointer border-t border-outline-variant/20 ${day.isCurrentMonth ? 'bg-surface-container-lowest' : 'bg-surface-container-highest/40'}`}>
+                  <span className={`text-sm font-headline font-bold flex justify-end ${day.isCurrentMonth ? 'text-on-surface' : 'text-outline/40'}`}>
                     {day.date}
                   </span>
                   
                   {day.hasOrder && (
-                    <div className="mt-3 space-y-1">
-                      <div className="px-2 py-1 bg-tertiary-container/30 border border-tertiary-container rounded text-[10px] font-bold text-on-tertiary-container truncate">
+                    <div className="mt-2 space-y-1.5">
+                      <div className="px-2 py-1 bg-[#ffdbcc] border-l-2 border-[#703210] rounded-r text-[10px] font-bold text-[#703210] shadow-sm truncate">
                         • 5x Croissants
                       </div>
                       {day.date === 27 && (
-                        <div className="px-2 py-1 bg-primary-fixed border border-primary/20 rounded text-[10px] font-bold text-on-primary-fixed truncate">
+                        <div className="px-2 py-1 bg-[#703210] border-l-2 border-[#ffdbcc] rounded-r text-[10px] font-bold text-white shadow-sm truncate">
                           • 2x Custom Cakes
                         </div>
                       )}
