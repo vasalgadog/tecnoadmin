@@ -7,7 +7,6 @@ import Inicio from './pages/Inicio';
 import VerCajas from './pages/VerCajas';
 import CantidadDePan from './pages/CantidadDePan';
 import VerPedidos from './pages/VerPedidos';
-import CalendarioPedidos from './pages/CalendarioPedidos';
 
 function App() {
   return (
@@ -20,7 +19,6 @@ function App() {
           <Route path="/verCajas" element={<VerCajas />} />
           <Route path="/produccion" element={<CantidadDePan />} />
           <Route path="/pedidos" element={<VerPedidos />} />
-          <Route path="/pedidos/calendario" element={<CalendarioPedidos />} />
         </Route>
       </Routes>
     </BrowserRouter>
