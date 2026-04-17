@@ -1,31 +1,8 @@
 export default function VerPedidos() {
   return (
     <>
-      {/* TopNavBar */}
-      <header className="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-surface/80 backdrop-blur-md flex justify-between items-center h-16 px-8">
-        <h2 className="text-xl font-headline font-bold text-[#703210]">View Orders</h2>
-        <div className="flex items-center gap-6">
-          <div className="relative group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
-            <input className="pl-10 pr-4 py-2 bg-surface-container-highest border-none rounded-sm text-sm focus:ring-0 focus:border-b-2 focus:border-primary transition-all w-64" placeholder="Search orders..." type="text" />
-          </div>
-          <div className="flex items-center gap-4">
-            <button className="bg-[#703210] text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-80 transition-opacity flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">add</span>
-              Register Expense
-            </button>
-            <button className="text-stone-500 hover:opacity-80 transition-opacity flex items-center">
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
-            <button className="text-stone-500 hover:opacity-80 transition-opacity flex items-center">
-              <span className="material-symbols-outlined">settings</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* Content Canvas */}
-      <div className="pt-24 px-8 pb-12">
+      <div className="p-8 pb-12">
         {/* Filter Bar & Reports */}
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
           <div className="flex flex-wrap items-center gap-4">

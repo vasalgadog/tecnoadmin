@@ -1,23 +1,8 @@
 export default function CantidadDePan() {
   return (
     <>
-      {/* TopNavBar */}
-      <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-20 bg-[#f9f9f6]/95 backdrop-blur-md flex justify-between items-center px-10 z-40">
-        <h2 className="text-2xl font-headline font-bold text-[#703210]">Bread Quantity Inventory</h2>
-        <div className="flex items-center space-x-8">
-          <button className="bg-[#703210] text-white px-6 py-2.5 rounded-lg text-sm font-label font-bold flex items-center hover:bg-[#5a280d] transition-all shadow-sm">
-            <span className="material-symbols-outlined text-sm mr-2">add</span>
-            Register Expense
-          </button>
-          <div className="flex items-center space-x-6 text-stone-400">
-            <button className="hover:text-[#703210] transition-colors"><span className="material-symbols-outlined">notifications</span></button>
-            <button className="hover:text-[#703210] transition-colors"><span className="material-symbols-outlined">settings</span></button>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content (Offset adjusted for fixed header) */}
-      <div className="pt-28 pb-16 px-10 min-h-screen bg-surface">
+      <div className="p-10 pb-16 min-h-screen bg-surface">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
           {/* Hallulla Card */}

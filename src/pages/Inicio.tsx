@@ -1,29 +1,8 @@
-import { useState } from 'react';
-
 export default function Inicio() {
-  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 
   return (
     <>
-      {/* TopNavBar */}
-      <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#f9f9f6]/80 backdrop-blur-md flex justify-between items-center px-8 z-40 border-b border-surface-container-high">
-        <div className="flex items-center">
-          <h2 className="text-xl font-headline font-semibold text-[#703210]">Dashboard Overview</h2>
-        </div>
-        <div className="flex items-center space-x-6">
-          <button onClick={() => setIsExpenseModalOpen(true)} className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center">
-            <span className="material-symbols-outlined text-sm mr-2">add_circle</span>
-            Register Expense
-          </button>
-          <div className="flex items-center space-x-4 text-stone-500">
-            <button className="material-symbols-outlined hover:opacity-80 transition-opacity">notifications</button>
-            <button className="material-symbols-outlined hover:opacity-80 transition-opacity">settings</button>
-          </div>
-        </div>
-      </header>
-
-      {/* Dashboard Content */}
-      <div className="mt-16 p-8 space-y-8">
+      <div className="p-8 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Panel 1: Bread Registration */}
@@ -170,34 +149,6 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* Modal: Register Expense (Simulated via overlay) */}
-      {isExpenseModalOpen && (
-        <div className="fixed inset-0 bg-[#1a1c1b]/20 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-headline font-extrabold text-primary">Register Expense</h2>
-              <button className="material-symbols-outlined text-outline hover:text-on-surface" onClick={() => setIsExpenseModalOpen(false)}>close</button>
-            </div>
-            <div className="space-y-6">
-              <div className="space-y-1">
-                <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Valor</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-outline">$</span>
-                  <input className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-lg font-bold py-4 pl-8" placeholder="0.00" type="number" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Descripción</label>
-                <textarea className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 resize-none" placeholder="Explain the expense..." rows={3}></textarea>
-              </div>
-              <div className="flex gap-4">
-                <button onClick={() => setIsExpenseModalOpen(false)} className="flex-1 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors">Cancel</button>
-                <button className="flex-1 py-3 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity">Save Expense</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
