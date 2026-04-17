@@ -41,13 +41,22 @@ export default function OrderRegistration() {
     setProducts(products.map(p => p.id === id ? { ...p, quantity: Math.max(1, p.quantity + delta) } : p));
   };
 
+  const handleDeleteProduct = (id: number) => {
+    if (products.length > 1) {
+      setProducts(products.filter(p => p.id !== id));
+    } else {
+      setProducts([{ id: Date.now(), quantity: 1, name: '', price: 0 }]);
+    }
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError(null);
 
     // Business Logic Validations
-    if (products.length === 0) {
-      setError('El pedido debe tener al menos un producto.');
+    const hasValidProduct = products.some(p => p.name.trim() !== '' && p.price > 0);
+    if (!hasValidProduct) {
+      setError('El pedido debe tener al menos un producto válido.');
       return;
     }
 
@@ -108,7 +117,7 @@ export default function OrderRegistration() {
           
           {/* Header Row */}
           <div className="grid grid-cols-12 gap-2 px-1">
-             <div className="col-span-4 text-[9px] font-label uppercase text-outline tracking-wider">Cant</div>
+             <div className="col-span-3 text-[9px] font-label uppercase text-outline tracking-wider">Cant</div>
              <div className="col-span-5 text-[9px] font-label uppercase text-outline tracking-wider">Producto</div>
              <div className="col-span-3 text-[9px] font-label uppercase text-outline tracking-wider text-right">Valor Final</div>
           </div>
@@ -118,18 +127,19 @@ export default function OrderRegistration() {
               <div key={p.id} className="grid grid-cols-12 gap-2 items-center bg-surface-container-low rounded-lg p-1 border border-outline-variant/20">
                 
                 {/* Quantity */}
-                <div className="col-span-4 flex items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10">
-                  <button type="button" onClick={() => handleUpdateQuantity(p.id, -1)} className="px-1.5 py-1.5 text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[14px]">remove</span>
+                <div className="col-span-3 flex items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10">
+                  <button type="button" onClick={() => handleUpdateQuantity(p.id, -1)} className="px-1 py-1.5 text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[12px]">remove</span>
                   </button>
                   <input 
                     type="text" 
-                    className="w-full bg-transparent text-center border-none text-[11px] font-bold p-0 focus:ring-0" 
+                    className="w-full bg-transparent text-center border-none text-[10px] font-bold p-0 focus:ring-0" 
                     value={p.quantity} 
-                    onChange={(e) => handleUpdateProduct(p.id, 'quantity', parseInt(e.target.value) || 1)} 
+                    maxLength={3}
+                    onChange={(e) => handleUpdateProduct(p.id, 'quantity', parseInt(e.target.value.replace(/\D/g, '')) || 1)} 
                   />
-                  <button type="button" onClick={() => handleUpdateQuantity(p.id, 1)} className="px-1.5 py-1.5 text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[14px]">add</span>
+                  <button type="button" onClick={() => handleUpdateQuantity(p.id, 1)} className="px-1 py-1.5 text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[12px]">add</span>
                   </button>
                 </div>
                 
@@ -139,7 +149,7 @@ export default function OrderRegistration() {
                   <input 
                     type="text" 
                     required
-                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[11px] font-semibold py-1.5 pl-6 pr-1 focus:ring-1 focus:ring-primary placeholder:text-outline-variant" 
+                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-semibold py-1.5 pl-5 pr-1 focus:ring-1 focus:ring-primary placeholder:text-outline-variant" 
                     placeholder="Buscar..." 
                     value={p.name} 
                     onChange={(e) => handleUpdateProduct(p.id, 'name', e.target.value)} 
@@ -151,11 +161,27 @@ export default function OrderRegistration() {
                   <input 
                     type="text" 
                     required
-                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[11px] font-bold py-1.5 px-1.5 text-right focus:ring-1 focus:ring-primary text-secondary" 
+                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-bold py-1.5 px-1.5 text-right focus:ring-1 focus:ring-primary text-secondary" 
                     value={p.price ? formatCLP(p.price) : ''} 
                     placeholder="$ 0"
-                    onChange={(e) => handleUpdateProduct(p.id, 'price', parseCLP(e.target.value))} 
+                    onChange={(e) => {
+                      const val = parseCLP(e.target.value);
+                      if (val.toString().length <= 6) {
+                        handleUpdateProduct(p.id, 'price', val);
+                      }
+                    }} 
                   />
+                </div>
+
+                {/* Delete Button */}
+                <div className="col-span-1 flex justify-center">
+                  <button 
+                    type="button" 
+                    onClick={() => handleDeleteProduct(p.id)}
+                    className="p-1 rounded-md text-outline hover:text-error hover:bg-error/10 transition-all flex items-center justify-center"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">close</span>
+                  </button>
                 </div>
 
               </div>
