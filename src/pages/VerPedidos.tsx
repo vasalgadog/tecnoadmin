@@ -19,57 +19,62 @@ export default function VerPedidos() {
       <div className="p-8 pb-12">
         
         {/* Header Actions & Tools Toolbar */}
-        <div className="flex justify-end gap-3 mb-8">
+        <div className="flex justify-between items-center gap-3 mb-8">
           
-          {/* View Toggle */}
-          <div className="flex bg-surface-container-highest p-1 rounded-lg w-fit shadow-sm border border-outline-variant/30 text-sm">
-            <button 
-              onClick={() => setActiveTab('calendar')}
-              className={`px-4 py-1.5 rounded-md font-bold transition-all flex items-center ${activeTab === 'calendar' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
-            >
-              <span className="material-symbols-outlined text-[16px] mr-1.5">calendar_month</span>
-              Calendar
+          {/* Left Dashboard: Calendar Navigation Component */}
+          {activeTab === 'calendar' ? (
+            <div className="flex items-center gap-2 bg-surface-container-low rounded-lg px-2 py-1 shadow-sm border border-outline-variant/30 text-primary">
+              <button className="p-1 rounded-md hover:bg-surface-container-high transition-all flex items-center justify-center">
+                <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+              </button>
+              <div className="w-32 text-center">
+                <h2 className="text-sm font-headline font-extrabold uppercase tracking-widest text-[#703210]">Oct 2023</h2>
+              </div>
+              <button className="p-1 rounded-md hover:bg-surface-container-high transition-all flex items-center justify-center">
+                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
+            </div>
+          ) : (
+            <div></div> /* Spacer to push right buttons cleanly */
+          )}
+
+          {/* Right Toolbar Controls */}
+          <div className="flex gap-3">
+            {/* View Toggle */}
+            <div className="flex bg-surface-container-highest p-1 rounded-lg w-fit shadow-sm border border-outline-variant/30 text-sm">
+              <button 
+                onClick={() => setActiveTab('calendar')}
+                className={`px-4 py-1.5 rounded-md font-bold transition-all flex items-center ${activeTab === 'calendar' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
+              >
+                <span className="material-symbols-outlined text-[16px] mr-1.5">calendar_month</span>
+                Calendar
+              </button>
+              <button 
+                onClick={() => setActiveTab('table')}
+                className={`px-4 py-1.5 rounded-md font-bold transition-all flex items-center ${activeTab === 'table' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
+              >
+                <span className="material-symbols-outlined text-[16px] mr-1.5">table_rows</span>
+                Details
+              </button>
+            </div>
+
+            <div className="hidden md:block w-px bg-outline-variant/30 my-1 mx-1"></div>
+
+            {/* Action Buttons */}
+            <button className="bg-surface-container-high text-on-surface hover:text-primary px-4 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-all shadow-sm">
+              <span className="material-symbols-outlined text-[18px]">filter_list</span>
+              Filters
             </button>
-            <button 
-              onClick={() => setActiveTab('table')}
-              className={`px-4 py-1.5 rounded-md font-bold transition-all flex items-center ${activeTab === 'table' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
-            >
-              <span className="material-symbols-outlined text-[16px] mr-1.5">table_rows</span>
-              Details
+            <button className="bg-[#fec178] text-[#784d0d] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+              <span className="material-symbols-outlined text-[18px]">print</span>
+              Print Report
             </button>
           </div>
-
-          <div className="w-px bg-outline-variant/30 my-1 mx-1"></div>
-
-          {/* Action Buttons */}
-          <button className="bg-surface-container-high text-on-surface hover:text-primary px-4 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-all shadow-sm">
-            <span className="material-symbols-outlined text-[18px]">filter_list</span>
-            Filters
-          </button>
-          <button className="bg-[#fec178] text-[#784d0d] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
-            <span className="material-symbols-outlined text-[18px]">print</span>
-            Print Report
-          </button>
         </div>
 
         {activeTab === 'calendar' ? (
-          <div className="bg-surface-container-lowest rounded-2xl shadow border border-outline-variant/40 p-8">
+          <div className="bg-surface-container-lowest rounded-2xl shadow border border-outline-variant/40 p-8 pt-6">
             
-            {/* Calendar Controls Nav */}
-            <div className="flex justify-center items-center mb-8">
-              <div className="flex items-center gap-6 bg-surface-container-low rounded-full px-2 py-1 shadow-sm border border-outline-variant/20">
-                <button className="p-2 rounded-full text-outline hover:text-primary hover:bg-surface-container-high transition-all flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-                </button>
-                <div className="w-36 text-center">
-                  <h2 className="text-lg font-headline font-extrabold text-on-surface uppercase tracking-widest">October 2023</h2>
-                </div>
-                <button className="p-2 rounded-full text-outline hover:text-primary hover:bg-surface-container-high transition-all flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-                </button>
-              </div>
-            </div>
-
             <div className="grid grid-cols-7 gap-px bg-outline-variant/30 rounded-xl overflow-hidden border-2 border-outline-variant/30">
               {/* Header */}
               {daysOfWeek.map(day => (
