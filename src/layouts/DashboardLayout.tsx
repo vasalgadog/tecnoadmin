@@ -22,6 +22,10 @@ export default function DashboardLayout() {
   const location = useLocation();
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   
+  // Sidebar responsive state
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const toggleSidebar = () => setIsSidebarExpanded(!isSidebarExpanded);
+  
   // Till state
   const [isTillOpen, setIsTillOpen] = useState(false);
   const [isOpenTillModalOpen, setIsOpenTillModalOpen] = useState(false);
@@ -62,71 +66,84 @@ export default function DashboardLayout() {
   return (
     <div className="bg-surface text-on-surface flex h-screen overflow-hidden font-body">
       {/* SideNavBar */}
-      <aside className="h-screen w-64 fixed left-0 top-0 bg-[#f4f4f1] border-r border-[#d9c2b8]/20 flex flex-col py-6 z-50">
-        <div className="px-6 mb-10">
-          <h1 className="text-2xl font-bold text-[#703210] font-headline tracking-tight">Tecnopan</h1>
-          <p className="text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1">Artisanal Management</p>
+      <aside className={`h-screen fixed left-0 top-0 bg-[#f4f4f1] border-r border-[#d9c2b8]/20 flex flex-col py-6 z-50 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-64' : 'w-20 xl:w-64'}`}>
+        <div className={`mb-10 flex items-center ${isSidebarExpanded ? 'px-6' : 'px-0 xl:px-6 justify-center xl:justify-start'}`}>
+          <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
+            {isSidebarExpanded ? (
+              <>
+                <h1 className="text-2xl font-bold text-[#703210] font-headline tracking-tight">Tecnopan</h1>
+                <p className="text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1">Artisanal Management</p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold text-[#703210] font-headline tracking-tight xl:block hidden">Tecnopan</h1>
+                <p className="text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1 xl:block hidden">Artisanal Management</p>
+                {/* Icon-only fallback when collapsed */}
+                <span className="material-symbols-outlined text-3xl text-[#703210] block xl:hidden" style={{ fontVariationSettings: "'FILL' 1" }}>bakery_dining</span>
+              </>
+            )}
+          </div>
         </div>
         
-        <nav className="flex-1 space-y-1 overflow-y-auto w-full">
+        <nav className="flex-1 space-y-2 overflow-y-auto w-full mt-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-            
-            if (isActive) {
-              return (
-                <Link key={item.path} to={item.path} className="flex items-center px-6 py-3 bg-[#ffdbcc] text-[#703210] font-bold rounded-r-full transition-transform active:scale-[0.98]">
-                  <span className="material-symbols-outlined mr-3" style={{ fontVariationSettings: "'FILL' 1" }}>{item.icon}</span>
-                  <span className="text-sm font-label uppercase tracking-wide">{item.label}</span>
-                </Link>
-              );
-            }
+            const baseClasses = "flex items-center py-3 transition-colors duration-200 group active:scale-[0.98]";
+            const activeClasses = isActive ? "bg-[#ffdbcc] text-[#703210] font-bold" : "text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6]";
+            const layoutClasses = isSidebarExpanded ? "px-6 rounded-r-full mr-4" : "justify-center xl:px-6 xl:justify-start xl:rounded-r-full xl:mr-4";
             
             return (
-              <Link key={item.path} to={item.path} className="flex items-center px-6 py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 group active:scale-[0.98]">
-                <span className="material-symbols-outlined mr-3">{item.icon}</span>
-                <span className="text-sm font-label uppercase tracking-wide">{item.label}</span>
-              </Link>
+              <div key={item.path} className={`${isSidebarExpanded ? 'pr-4' : 'xl:pr-4'}`}>
+                <Link to={item.path} className={`${baseClasses} ${activeClasses} ${layoutClasses}`} title={item.label}>
+                  <span className={`material-symbols-outlined ${isSidebarExpanded ? 'mr-3' : 'mr-0 xl:mr-3'}`} style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
+                  <span className={`text-sm font-label uppercase tracking-wide truncate ${isSidebarExpanded ? 'block' : 'hidden xl:block'}`}>{item.label}</span>
+                </Link>
+              </div>
             );
           })}
         </nav>
         
-        <div className="px-6 mt-auto pt-4 border-t border-outline-variant/10">
-          <button className="flex items-center w-full px-4 py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg">
-            <span className="material-symbols-outlined mr-3">logout</span>
-            <span className="text-sm font-label uppercase tracking-wide">Logout</span>
+        <div className={`mt-auto pt-4 border-t border-outline-variant/10 ${isSidebarExpanded ? 'px-6' : 'px-2 xl:px-6'}`}>
+          <button className={`flex items-center py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg ${isSidebarExpanded ? 'w-full px-4' : 'justify-center w-full xl:justify-start xl:px-4'}`} title="Logout">
+            <span className={`material-symbols-outlined ${isSidebarExpanded ? 'mr-3' : 'mr-0 xl:mr-3'}`}>logout</span>
+            <span className={`text-sm font-label uppercase tracking-wide ${isSidebarExpanded ? 'block' : 'hidden xl:block'}`}>Logout</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 ml-64 h-screen relative flex flex-col overflow-hidden">
-        <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#f9f9f6]/95 backdrop-blur-md flex justify-between items-center px-8 z-40 border-b border-surface-container-high transition-all">
-          <div className="flex items-center">
-            <h2 className="text-xl font-headline font-semibold text-[#703210]">{getRouteTitle(location.pathname)}</h2>
+      <main className={`flex-1 min-h-screen relative flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20 xl:ml-64'}`}>
+        <header className={`fixed top-0 right-0 h-16 bg-[#f9f9f6]/95 backdrop-blur-md flex justify-between items-center px-4 md:px-8 z-40 border-b border-surface-container-high transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-[calc(100%-16rem)]' : 'w-[calc(100%-5rem)] xl:w-[calc(100%-16rem)]'}`}>
+          <div className="flex items-center gap-3">
+            {/* Hamburger Toggle */}
+            <button onClick={toggleSidebar} className="p-2 rounded-lg text-stone-500 hover:text-primary hover:bg-surface-container-high transition-colors xl:hidden flex items-center justify-center">
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+            <h2 className="text-lg md:text-xl font-headline font-semibold text-[#703210] hidden sm:block">{getRouteTitle(location.pathname)}</h2>
           </div>
-          <div className="flex items-center space-x-6">
-            
+          
+          <div className="flex items-center space-x-3 md:space-x-6">
             {/* Till Switch Button */}
             <button 
               onClick={handleTillAction} 
-              className={`px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-all flex items-center ${isTillOpen ? 'bg-secondary-fixed-dim text-on-secondary-fixed' : 'bg-surface-container-highest text-on-surface'}`}
+              className={`px-3 md:px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-all flex items-center ${isTillOpen ? 'bg-secondary-fixed-dim text-on-secondary-fixed' : 'bg-surface-container-highest text-on-surface'}`}
             >
-              <span className="material-symbols-outlined text-sm mr-2">{isTillOpen ? 'lock' : 'lock_open_right'}</span>
-              {isTillOpen ? 'Close Till' : 'Open Till'}
+              <span className="material-symbols-outlined text-sm mr-0 md:mr-2">{isTillOpen ? 'lock' : 'lock_open_right'}</span>
+              <span className="hidden md:inline">{isTillOpen ? 'Close Till' : 'Open Till'}</span>
             </button>
 
             {/* Register Expense Button */}
             <button 
               onClick={() => setIsExpenseModalOpen(true)} 
-              className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center"
+              className="bg-primary text-white px-3 md:px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center"
             >
-              <span className="material-symbols-outlined text-sm mr-2">add_circle</span>
-              Register Expense
+              <span className="material-symbols-outlined text-sm mr-0 md:mr-2">add_circle</span>
+              <span className="hidden md:inline">Expense</span>
             </button>
 
-            <div className="flex items-center space-x-4 text-stone-500">
-              <button className="material-symbols-outlined hover:text-primary transition-colors">notifications</button>
-              <button className="material-symbols-outlined hover:text-primary transition-colors">settings</button>
+            <div className="flex items-center space-x-2 md:space-x-4 text-stone-500">
+              <button className="material-symbols-outlined hover:text-primary transition-colors p-1">notifications</button>
+              <button className="material-symbols-outlined hover:text-primary transition-colors p-1">settings</button>
             </div>
           </div>
         </header>
