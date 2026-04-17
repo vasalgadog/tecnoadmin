@@ -6,11 +6,13 @@ export default function OrderRegistration() {
   const [paymentStatus, setPaymentStatus] = useState<'abono' | 'pagado'>('pagado');
   const [phone, setPhone] = useState('');
   const [abonoAmount, setAbonoAmount] = useState('');
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([
+    { id: Date.now(), quantity: 1, name: '', price: 0 }
+  ]);
   const [error, setError] = useState<string | null>(null);
   
-  // Mockup total dynamically computed or fixed
-  const orderTotal = products.reduce((acc, curr) => acc + curr.price, 0) || 15400; 
+  // Real total dynamically computed
+  const orderTotal = products.reduce((acc, curr) => acc + (curr.price || 0), 0); 
 
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPhone(formatChileanPhone(e.target.value));
@@ -26,9 +28,17 @@ export default function OrderRegistration() {
     }
   };
 
-  const handleAddMockProduct = () => {
-    setProducts([...products, { id: Date.now(), title: 'Torta Personalizada', price: 15400 }]);
+  const handleAddProduct = () => {
+    setProducts([...products, { id: Date.now(), quantity: 1, name: '', price: 0 }]);
     setError(null);
+  };
+
+  const handleUpdateProduct = (id: number, field: string, value: any) => {
+    setProducts(products.map(p => p.id === id ? { ...p, [field]: value } : p));
+  };
+
+  const handleUpdateQuantity = (id: number, delta: number) => {
+    setProducts(products.map(p => p.id === id ? { ...p, quantity: Math.max(1, p.quantity + delta) } : p));
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -91,23 +101,65 @@ export default function OrderRegistration() {
         <div className="pt-2 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-[11px] font-label uppercase tracking-widest text-outline font-bold">Products</h3>
-            <button onClick={handleAddMockProduct} className="text-primary flex items-center text-[10px] font-bold uppercase tracking-wider hover:bg-primary-container/80 transition-colors bg-primary-container px-2 py-1 rounded-md" type="button">
+            <button onClick={handleAddProduct} className="text-primary flex items-center text-[10px] font-bold uppercase tracking-wider hover:bg-primary-container/80 transition-colors bg-primary-container px-2 py-1 rounded-md" type="button">
               <span className="material-symbols-outlined text-[14px] mr-1">add</span> Add
             </button>
           </div>
+          
+          {/* Header Row */}
+          <div className="grid grid-cols-12 gap-2 px-1">
+             <div className="col-span-4 text-[9px] font-label uppercase text-outline tracking-wider">Cant</div>
+             <div className="col-span-5 text-[9px] font-label uppercase text-outline tracking-wider">Producto</div>
+             <div className="col-span-3 text-[9px] font-label uppercase text-outline tracking-wider text-right">Valor Final</div>
+          </div>
+
           <div className="space-y-2">
-            {products.length === 0 ? (
-              <div onClick={handleAddMockProduct} className="border border-dashed border-outline-variant/60 bg-surface/50 rounded-lg py-4 flex flex-col items-center justify-center text-outline text-center transition-colors hover:border-primary/40 hover:bg-primary-fixed/5 cursor-pointer">
-                <p className="text-[11px] font-medium">Click to add items</p>
-              </div>
-            ) : (
-              products.map((p, idx) => (
-                <div key={p.id} className="bg-surface-container-high rounded-lg py-2 px-3 flex justify-between items-center text-sm">
-                  <span className="font-bold text-on-surface text-xs">{idx + 1}. {p.title}</span>
-                  <span className="font-bold text-primary text-xs">{formatCLP(p.price)}</span>
+            {products.map((p) => (
+              <div key={p.id} className="grid grid-cols-12 gap-2 items-center bg-surface-container-low rounded-lg p-1 border border-outline-variant/20">
+                
+                {/* Quantity */}
+                <div className="col-span-4 flex items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10">
+                  <button type="button" onClick={() => handleUpdateQuantity(p.id, -1)} className="px-1.5 py-1.5 text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[14px]">remove</span>
+                  </button>
+                  <input 
+                    type="text" 
+                    className="w-full bg-transparent text-center border-none text-[11px] font-bold p-0 focus:ring-0" 
+                    value={p.quantity} 
+                    onChange={(e) => handleUpdateProduct(p.id, 'quantity', parseInt(e.target.value) || 1)} 
+                  />
+                  <button type="button" onClick={() => handleUpdateQuantity(p.id, 1)} className="px-1.5 py-1.5 text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[14px]">add</span>
+                  </button>
                 </div>
-              ))
-            )}
+                
+                {/* Product Name Search */}
+                <div className="col-span-5 relative">
+                  <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-outline material-symbols-outlined text-[12px]">search</span>
+                  <input 
+                    type="text" 
+                    required
+                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[11px] font-semibold py-1.5 pl-6 pr-1 focus:ring-1 focus:ring-primary placeholder:text-outline-variant" 
+                    placeholder="Buscar..." 
+                    value={p.name} 
+                    onChange={(e) => handleUpdateProduct(p.id, 'name', e.target.value)} 
+                  />
+                </div>
+                
+                {/* Final Value */}
+                <div className="col-span-3 relative">
+                  <input 
+                    type="text" 
+                    required
+                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[11px] font-bold py-1.5 px-1.5 text-right focus:ring-1 focus:ring-primary text-secondary" 
+                    value={p.price ? formatCLP(p.price) : ''} 
+                    placeholder="$ 0"
+                    onChange={(e) => handleUpdateProduct(p.id, 'price', parseCLP(e.target.value))} 
+                  />
+                </div>
+
+              </div>
+            ))}
           </div>
         </div>
 

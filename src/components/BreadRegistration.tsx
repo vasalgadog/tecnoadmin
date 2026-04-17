@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export default function BreadRegistration() {
   const [variety, setVariety] = useState<'hallulla' | 'frances'>('hallulla');
-  const [boxes, setBoxes] = useState<number | ''>(1);
+  const [boxes, setBoxes] = useState<number | 'neto'>(1);
 
   return (
     <form onSubmit={(e) => e.preventDefault()} className="bg-surface-container-lowest p-8 rounded-xl ambient-shadow">
@@ -89,18 +89,17 @@ export default function BreadRegistration() {
               {num}
             </button>
           ))}
-          <div className="relative">
-            <input 
-              value={boxes}
-              onChange={(e) => setBoxes(e.target.value ? Number(e.target.value) : '')}
-              className={`w-full h-full py-2.5 rounded-lg border-2 text-center font-bold focus:ring-primary text-sm placeholder:text-outline-variant transition-colors ${
-                [1,2,3,4].includes(boxes as number) ? 'bg-surface-container-highest border-transparent' : 'bg-surface-container-lowest border-primary'
-              }`} 
-              placeholder="N" 
-              type="number" 
-              min="1"
-            />
-          </div>
+          <button 
+            type="button" 
+            onClick={() => setBoxes('neto')}
+            className={`py-2.5 rounded-lg font-bold transition-colors text-sm ${
+              boxes === 'neto' 
+                ? 'bg-primary text-white shadow-sm' 
+                : 'bg-surface-container-high hover:bg-secondary-container'
+            }`}
+          >
+            Neto
+          </button>
         </div>
       </div>
 
