@@ -94,7 +94,12 @@ export default function DashboardLayout() {
             
             return (
               <div key={item.path} className={`xl:pr-4 max-[499px]:pr-4 ${isSidebarExpanded ? '!pr-4' : ''}`}>
-                <Link to={item.path} className={`${baseClasses} ${activeClasses} ${layoutClasses} ${isSidebarExpanded ? '!px-6 !justify-start !rounded-r-full !mr-4' : ''}`} title={item.label}>
+                <Link 
+                  to={item.path} 
+                  onClick={() => setIsSidebarExpanded(false)}
+                  className={`${baseClasses} ${activeClasses} ${layoutClasses} ${isSidebarExpanded ? '!px-6 !justify-start !rounded-r-full !mr-4' : ''}`} 
+                  title={item.label}
+                >
                   <span className={`material-symbols-outlined mr-0 xl:mr-3 max-[499px]:mr-3 ${isSidebarExpanded ? '!mr-3' : ''}`} style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>{item.icon}</span>
                   <span className={`text-sm font-label uppercase tracking-wide truncate hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>{item.label}</span>
                 </Link>
