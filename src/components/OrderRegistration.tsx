@@ -117,51 +117,52 @@ export default function OrderRegistration() {
           
           {/* Header Row */}
           <div className="grid grid-cols-12 gap-2 px-1">
-             <div className="col-span-3 text-[9px] font-label uppercase text-outline tracking-wider">Cant</div>
-             <div className="col-span-5 text-[9px] font-label uppercase text-outline tracking-wider">Producto</div>
-             <div className="col-span-3 text-[9px] font-label uppercase text-outline tracking-wider text-right">Valor Final</div>
+             <div className="col-span-2 text-[9px] font-label uppercase text-outline tracking-wider">Cant</div>
+             <div className="col-span-7 text-[9px] font-label uppercase text-outline tracking-wider">Producto</div>
+             <div className="col-span-2 text-[9px] font-label uppercase text-outline tracking-wider text-right">Valor</div>
+             <div className="col-span-1"></div>
           </div>
 
           <div className="space-y-2">
             {products.map((p) => (
               <div key={p.id} className="grid grid-cols-12 gap-2 items-center bg-surface-container-low rounded-lg p-1 border border-outline-variant/20">
                 
-                {/* Quantity */}
-                <div className="col-span-3 flex items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10">
-                  <button type="button" onClick={() => handleUpdateQuantity(p.id, -1)} className="px-1 py-1.5 text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[12px]">remove</span>
+                {/* Quantity - Narrower and Taller */}
+                <div className="col-span-2 flex items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10 h-9">
+                  <button type="button" onClick={() => handleUpdateQuantity(p.id, -1)} className="w-6 h-full text-primary hover:bg-surface-variant transition-colors flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[14px]">remove</span>
                   </button>
                   <input 
                     type="text" 
-                    className="w-full bg-transparent text-center border-none text-[10px] font-bold p-0 focus:ring-0" 
+                    className="w-full bg-transparent text-center border-none text-[11px] font-extrabold p-0 focus:ring-0 min-w-0" 
                     value={p.quantity} 
                     maxLength={3}
                     onChange={(e) => handleUpdateProduct(p.id, 'quantity', parseInt(e.target.value.replace(/\D/g, '')) || 1)} 
                   />
-                  <button type="button" onClick={() => handleUpdateQuantity(p.id, 1)} className="px-1 py-1.5 text-primary hover:bg-surface-variant transition-colors flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[12px]">add</span>
+                  <button type="button" onClick={() => handleUpdateQuantity(p.id, 1)} className="w-6 h-full text-primary hover:bg-surface-variant transition-colors flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[14px]">add</span>
                   </button>
                 </div>
                 
-                {/* Product Name Search */}
-                <div className="col-span-5 relative">
-                  <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-outline material-symbols-outlined text-[12px]">search</span>
+                {/* Product Name Search - Wider */}
+                <div className="col-span-7 relative">
+                  <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-outline material-symbols-outlined text-[14px]">search</span>
                   <input 
                     type="text" 
                     required
-                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-semibold py-1.5 pl-5 pr-1 focus:ring-1 focus:ring-primary placeholder:text-outline-variant" 
+                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-semibold py-2 pl-6 pr-1 h-9 focus:ring-1 focus:ring-primary placeholder:text-outline-variant" 
                     placeholder="Buscar..." 
                     value={p.name} 
                     onChange={(e) => handleUpdateProduct(p.id, 'name', e.target.value)} 
                   />
                 </div>
                 
-                {/* Final Value */}
-                <div className="col-span-3 relative">
+                {/* Final Value - Narrower */}
+                <div className="col-span-2 relative">
                   <input 
                     type="text" 
                     required
-                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-bold py-1.5 px-1.5 text-right focus:ring-1 focus:ring-primary text-secondary" 
+                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-bold py-2 px-1 text-right h-9 focus:ring-1 focus:ring-primary text-secondary" 
                     value={p.price ? formatCLP(p.price) : ''} 
                     placeholder="$ 0"
                     onChange={(e) => {
@@ -178,9 +179,9 @@ export default function OrderRegistration() {
                   <button 
                     type="button" 
                     onClick={() => handleDeleteProduct(p.id)}
-                    className="p-1 rounded-md text-outline hover:text-error hover:bg-error/10 transition-all flex items-center justify-center"
+                    className="w-7 h-7 rounded-md text-outline hover:text-error hover:bg-error/10 transition-all flex items-center justify-center"
                   >
-                    <span className="material-symbols-outlined text-[14px]">close</span>
+                    <span className="material-symbols-outlined text-[16px]">close</span>
                   </button>
                 </div>
 
