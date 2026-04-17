@@ -1,4 +1,9 @@
+import { useState } from 'react';
+
 export default function BreadRegistration() {
+  const [variety, setVariety] = useState<'hallulla' | 'frances'>('hallulla');
+  const [boxes, setBoxes] = useState<number | ''>(1);
+
   return (
     <form onSubmit={(e) => e.preventDefault()} className="bg-surface-container-lowest p-8 rounded-xl ambient-shadow">
       <header className="flex items-center justify-between mb-8">
@@ -34,12 +39,33 @@ export default function BreadRegistration() {
       <div className="space-y-2 mb-5">
         <label className="text-[10px] font-label uppercase tracking-widest text-outline font-semibold">Select Variety *</label>
         <div className="grid grid-cols-2 gap-3">
-          <button type="button" className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-primary-fixed text-on-primary-fixed border-2 border-primary transition-all">
-            <span className="material-symbols-outlined text-lg">radio_button_checked</span>
+          <button 
+            type="button" 
+            onClick={() => setVariety('hallulla')}
+            className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all ${
+              variety === 'hallulla' 
+                ? 'bg-primary-fixed text-on-primary-fixed border-2 border-primary' 
+                : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant border-2 border-transparent group'
+            }`}
+          >
+            <span className={`material-symbols-outlined text-lg transition-colors ${variety === 'hallulla' ? '' : 'text-outline group-hover:text-primary'}`}>
+              {variety === 'hallulla' ? 'radio_button_checked' : 'radio_button_unchecked'}
+            </span>
             <span className="font-headline font-bold text-sm">Hallulla</span>
           </button>
-          <button type="button" className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-surface-container-high text-on-surface-variant hover:bg-surface-variant transition-all border-2 border-transparent group">
-            <span className="material-symbols-outlined text-lg text-outline group-hover:text-primary transition-colors">radio_button_unchecked</span>
+          
+          <button 
+            type="button" 
+            onClick={() => setVariety('frances')}
+            className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all ${
+              variety === 'frances' 
+                ? 'bg-primary-fixed text-on-primary-fixed border-2 border-primary' 
+                : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-variant border-2 border-transparent group'
+            }`}
+          >
+            <span className={`material-symbols-outlined text-lg transition-colors ${variety === 'frances' ? '' : 'text-outline group-hover:text-primary'}`}>
+              {variety === 'frances' ? 'radio_button_checked' : 'radio_button_unchecked'}
+            </span>
             <span className="font-headline font-bold text-sm">Francés</span>
           </button>
         </div>
@@ -49,12 +75,31 @@ export default function BreadRegistration() {
       <div className="space-y-2">
         <label className="text-[10px] font-label uppercase tracking-widest text-outline font-semibold">Number of Boxes *</label>
         <div className="grid grid-cols-5 gap-2">
-          <button type="button" className="py-2.5 rounded-lg bg-surface-container-high font-bold hover:bg-secondary-container transition-colors text-sm">1</button>
-          <button type="button" className="py-2.5 rounded-lg bg-surface-container-high font-bold hover:bg-secondary-container transition-colors text-sm">2</button>
-          <button type="button" className="py-2.5 rounded-lg bg-surface-container-high font-bold hover:bg-secondary-container transition-colors text-sm">3</button>
-          <button type="button" className="py-2.5 rounded-lg bg-surface-container-high font-bold hover:bg-secondary-container transition-colors text-sm">4</button>
+          {[1, 2, 3, 4].map(num => (
+            <button 
+              key={num}
+              type="button" 
+              onClick={() => setBoxes(num)}
+              className={`py-2.5 rounded-lg font-bold transition-colors text-sm ${
+                boxes === num 
+                  ? 'bg-primary text-white shadow-sm' 
+                  : 'bg-surface-container-high hover:bg-secondary-container'
+              }`}
+            >
+              {num}
+            </button>
+          ))}
           <div className="relative">
-            <input className="w-full h-full py-2.5 rounded-lg bg-surface-container-highest border-none text-center font-bold focus:ring-2 focus:ring-primary text-sm placeholder:text-outline-variant" placeholder="N" type="number" />
+            <input 
+              value={boxes}
+              onChange={(e) => setBoxes(e.target.value ? Number(e.target.value) : '')}
+              className={`w-full h-full py-2.5 rounded-lg border-2 text-center font-bold focus:ring-primary text-sm placeholder:text-outline-variant transition-colors ${
+                [1,2,3,4].includes(boxes as number) ? 'bg-surface-container-highest border-transparent' : 'bg-surface-container-lowest border-primary'
+              }`} 
+              placeholder="N" 
+              type="number" 
+              min="1"
+            />
           </div>
         </div>
       </div>
