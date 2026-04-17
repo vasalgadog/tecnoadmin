@@ -28,7 +28,7 @@ export default function VerPedidos() {
                 <span className="material-symbols-outlined text-[18px]">chevron_left</span>
               </button>
               <div className="w-32 text-center">
-                <h2 className="text-sm font-headline font-extrabold uppercase tracking-widest text-[#703210]">Oct 2023</h2>
+                <h2 className="text-xl font-headline font-extrabold uppercase tracking-wider text-[#703210]">Oct 2023</h2>
               </div>
               <button className="p-1 rounded-md hover:bg-surface-container-high transition-all flex items-center justify-center">
                 <span className="material-symbols-outlined text-[18px]">chevron_right</span>
