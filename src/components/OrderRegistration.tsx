@@ -6,8 +6,11 @@ export default function OrderRegistration() {
   const [paymentStatus, setPaymentStatus] = useState<'abono' | 'pagado'>('pagado');
   const [phone, setPhone] = useState('');
   const [abonoAmount, setAbonoAmount] = useState('');
-  // Mockup total for visual feedback
-  const [orderTotal] = useState(15400); 
+  const [products, setProducts] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Mockup total dynamically computed or fixed
+  const orderTotal = products.reduce((acc, curr) => acc + curr.price, 0) || 15400; 
 
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPhone(formatChileanPhone(e.target.value));
@@ -23,10 +26,32 @@ export default function OrderRegistration() {
     }
   };
 
+  const handleAddMockProduct = () => {
+    setProducts([...products, { id: Date.now(), title: 'Torta Personalizada', price: 15400 }]);
+    setError(null);
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    console.log("Order Submitted", { phone, abonoAmount, paymentStatus });
+    setError(null);
+
+    // Business Logic Validations
+    if (products.length === 0) {
+      setError('El pedido debe tener al menos un producto.');
+      return;
+    }
+
+    if (paymentStatus === 'abono') {
+      const parsedAbono = parseCLP(abonoAmount);
+      if (parsedAbono > orderTotal) {
+        setError(`El monto abonado no puede ser mayor al total (${formatCLP(orderTotal)}).`);
+        return;
+      }
+    }
+
+    console.log("Order Submitted", { phone, abonoAmount, paymentStatus, products });
     // Execute backend logic...
+    alert("Order successfully validated and saved!");
   };
 
   return (
@@ -66,14 +91,23 @@ export default function OrderRegistration() {
         <div className="pt-2 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-[11px] font-label uppercase tracking-widest text-outline font-bold">Products</h3>
-            <button className="text-primary flex items-center text-[10px] font-bold uppercase tracking-wider hover:bg-primary-container/80 transition-colors bg-primary-container px-2 py-1 rounded-md" type="button">
+            <button onClick={handleAddMockProduct} className="text-primary flex items-center text-[10px] font-bold uppercase tracking-wider hover:bg-primary-container/80 transition-colors bg-primary-container px-2 py-1 rounded-md" type="button">
               <span className="material-symbols-outlined text-[14px] mr-1">add</span> Add
             </button>
           </div>
           <div className="space-y-2">
-            <div className="border border-dashed border-outline-variant/60 bg-surface/50 rounded-lg py-4 flex flex-col items-center justify-center text-outline text-center transition-colors hover:border-primary/40 hover:bg-primary-fixed/5 cursor-pointer">
-              <p className="text-[11px] font-medium">Click to add items</p>
-            </div>
+            {products.length === 0 ? (
+              <div onClick={handleAddMockProduct} className="border border-dashed border-outline-variant/60 bg-surface/50 rounded-lg py-4 flex flex-col items-center justify-center text-outline text-center transition-colors hover:border-primary/40 hover:bg-primary-fixed/5 cursor-pointer">
+                <p className="text-[11px] font-medium">Click to add items</p>
+              </div>
+            ) : (
+              products.map((p, idx) => (
+                <div key={p.id} className="bg-surface-container-high rounded-lg py-2 px-3 flex justify-between items-center text-sm">
+                  <span className="font-bold text-on-surface text-xs">{idx + 1}. {p.title}</span>
+                  <span className="font-bold text-primary text-xs">{formatCLP(p.price)}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -133,6 +167,12 @@ export default function OrderRegistration() {
         </div>
 
         <div className="pt-4">
+          {error && (
+            <div className="mb-4 bg-error-container text-on-error-container text-[11px] font-bold p-3 rounded-lg flex items-center">
+              <span className="material-symbols-outlined mr-2 text-lg">error</span>
+              {error}
+            </div>
+          )}
           <button className="w-full py-3 rounded-lg bg-primary text-white text-sm font-bold shadow-md hover:-translate-y-0.5 transition-all flex justify-center items-center" type="submit">
             <span className="material-symbols-outlined mr-2 text-[20px]">shopping_cart_checkout</span>
             Finalize Order
