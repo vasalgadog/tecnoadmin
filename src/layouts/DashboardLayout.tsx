@@ -60,7 +60,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="bg-surface text-on-surface flex min-h-screen font-body">
+    <div className="bg-surface text-on-surface flex h-screen overflow-hidden font-body">
       {/* SideNavBar */}
       <aside className="h-screen w-64 fixed left-0 top-0 bg-[#f4f4f1] border-r border-[#d9c2b8]/20 flex flex-col py-6 z-50">
         <div className="px-6 mb-10">
@@ -68,7 +68,7 @@ export default function DashboardLayout() {
           <p className="text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1">Artisanal Management</p>
         </div>
         
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto w-full">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
             
@@ -90,7 +90,7 @@ export default function DashboardLayout() {
           })}
         </nav>
         
-        <div className="px-6 mt-auto">
+        <div className="px-6 mt-auto pt-4 border-t border-outline-variant/10">
           <button className="flex items-center w-full px-4 py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg">
             <span className="material-symbols-outlined mr-3">logout</span>
             <span className="text-sm font-label uppercase tracking-wide">Logout</span>
@@ -99,7 +99,7 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 ml-64 min-h-screen relative">
+      <main className="flex-1 ml-64 h-screen relative flex flex-col overflow-hidden">
         <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#f9f9f6]/95 backdrop-blur-md flex justify-between items-center px-8 z-40 border-b border-surface-container-high transition-all">
           <div className="flex items-center">
             <h2 className="text-xl font-headline font-semibold text-[#703210]">{getRouteTitle(location.pathname)}</h2>
@@ -247,7 +247,8 @@ export default function DashboardLayout() {
           </div>
         )}
 
-        <div className="pt-16 min-h-screen">
+        {/* Main Content Container (scrolls independently) */}
+        <div className="pt-16 flex-1 h-[calc(100vh-64px)] w-full overflow-y-auto">
           <Outlet />
         </div>
       </main>
