@@ -4,52 +4,58 @@ export default function CantidadDePan() {
       {/* Main Content (Offset adjusted for fixed header) */}
       <div className="p-8 pb-16 min-h-screen bg-surface">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           {/* Hallulla Card */}
-          <div className="relative overflow-hidden bg-surface-container-lowest rounded-2xl p-6 border-l-8 border-secondary-fixed-dim shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-[10px] font-label font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">Total Daily Stock</p>
-                <h3 className="text-3xl font-headline font-extrabold text-primary">Hallulla</h3>
-              </div>
-              <div className="bg-[#ffdbcc] p-3 rounded-2xl">
+          <div className="relative overflow-hidden bg-surface-container-lowest rounded-xl p-5 border-l-8 border-secondary-fixed-dim shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-[#ffdbcc] p-3 rounded-xl hidden sm:block">
                 <span className="material-symbols-outlined text-[#703210] text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>bakery_dining</span>
               </div>
+              <div>
+                <p className="text-[9px] font-label font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-1">Total Daily Stock</p>
+                <h3 className="text-xl font-headline font-extrabold text-primary">Hallulla</h3>
+              </div>
             </div>
-            <div className="mt-4 flex items-baseline">
-              <span className="text-5xl font-headline font-extrabold text-on-surface tracking-tight">1,240</span>
-              <span className="ml-3 text-on-surface-variant font-medium text-lg">units</span>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <span className="text-secondary font-bold flex items-center bg-secondary-fixed/30 px-2 py-1 rounded">
-                <span className="material-symbols-outlined text-sm mr-1">trending_up</span>
-                +12%
-              </span>
-              <span className="ml-3 text-stone-500 font-label uppercase text-[11px] tracking-widest font-medium">vs yesterday</span>
+            
+            <div className="text-right">
+              <div className="flex items-baseline justify-end">
+                <span className="text-3xl font-headline font-extrabold text-on-surface tracking-tight">1,240</span>
+                <span className="ml-2 text-on-surface-variant font-medium text-sm">kg</span>
+              </div>
+              <div className="mt-1 flex items-center justify-end text-xs">
+                <span className="text-secondary font-bold flex items-center bg-secondary-fixed/30 px-1.5 py-0.5 rounded text-[10px]">
+                  <span className="material-symbols-outlined text-[12px] mr-1">trending_up</span>
+                  +12%
+                </span>
+                <span className="ml-2 text-stone-500 font-label uppercase text-[9px] tracking-widest font-medium hidden sm:inline">vs yesterday</span>
+              </div>
             </div>
           </div>
 
           {/* Francés Card */}
-          <div className="relative overflow-hidden bg-surface-container-lowest rounded-2xl p-6 border-l-8 border-primary-container shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-[10px] font-label font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">Total Daily Stock</p>
-                <h3 className="text-3xl font-headline font-extrabold text-primary">Francés</h3>
-              </div>
-              <div className="bg-[#ffddb9] p-3 rounded-2xl">
+          <div className="relative overflow-hidden bg-surface-container-lowest rounded-xl p-5 border-l-8 border-primary-container shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-[#ffddb9] p-3 rounded-xl hidden sm:block">
                 <span className="material-symbols-outlined text-[#825516] text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>flatware</span>
               </div>
+              <div>
+                <p className="text-[9px] font-label font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-1">Total Daily Stock</p>
+                <h3 className="text-xl font-headline font-extrabold text-primary">Francés</h3>
+              </div>
             </div>
-            <div className="mt-4 flex items-baseline">
-              <span className="text-5xl font-headline font-extrabold text-on-surface tracking-tight">850</span>
-              <span className="ml-3 text-on-surface-variant font-medium text-lg">units</span>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <span className="text-error font-bold flex items-center bg-error-container/30 px-2 py-1 rounded">
-                <span className="material-symbols-outlined text-sm mr-1">trending_down</span>
-                -4%
-              </span>
-              <span className="ml-3 text-stone-500 font-label uppercase text-[11px] tracking-widest font-medium">vs yesterday</span>
+            
+            <div className="text-right">
+              <div className="flex items-baseline justify-end">
+                <span className="text-3xl font-headline font-extrabold text-on-surface tracking-tight">850</span>
+                <span className="ml-2 text-on-surface-variant font-medium text-sm">kg</span>
+              </div>
+              <div className="mt-1 flex items-center justify-end text-xs">
+                <span className="text-error font-bold flex items-center bg-error-container/30 px-1.5 py-0.5 rounded text-[10px]">
+                  <span className="material-symbols-outlined text-[12px] mr-1">trending_down</span>
+                  -4%
+                </span>
+                <span className="ml-2 text-stone-500 font-label uppercase text-[9px] tracking-widest font-medium hidden sm:inline">vs yesterday</span>
+              </div>
             </div>
           </div>
         </div>
