@@ -16,10 +16,10 @@ export default function VerPedidos() {
 
   return (
     <>
-      <div className="p-8 pb-12">
+      <div className="p-6 md:p-8 h-[calc(100vh-64px)] flex flex-col overflow-y-auto">
         
         {/* Header Actions & Tools Toolbar */}
-        <div className="flex justify-between items-center gap-3 mb-8">
+        <div className="flex flex-wrap md:flex-nowrap justify-between items-center gap-3 mb-6 shrink-0">
           
           {/* Left Dashboard: Calendar Navigation Component */}
           {activeTab === 'calendar' ? (
@@ -39,7 +39,7 @@ export default function VerPedidos() {
           )}
 
           {/* Right Toolbar Controls */}
-          <div className="flex gap-3">
+          <div className="flex flex-wrap md:flex-nowrap gap-3">
             {/* View Toggle */}
             <div className="flex bg-surface-container-highest p-1 rounded-lg w-fit shadow-sm border border-outline-variant/30 text-sm">
               <button 
@@ -58,7 +58,7 @@ export default function VerPedidos() {
               </button>
             </div>
 
-            <div className="hidden md:block w-px bg-outline-variant/30 my-1 mx-1"></div>
+            <div className="hidden lg:block w-px bg-outline-variant/30 my-1 mx-1"></div>
 
             {/* Action Buttons */}
             <button className="bg-surface-container-high text-on-surface hover:text-primary px-4 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-all shadow-sm">
@@ -73,30 +73,33 @@ export default function VerPedidos() {
         </div>
 
         {activeTab === 'calendar' ? (
-          <div className="bg-surface-container-lowest rounded-2xl shadow border border-outline-variant/40 p-8 pt-6">
+          <div className="bg-surface-container-lowest rounded-2xl shadow border border-outline-variant/40 p-4 md:p-6 lg:p-8 pt-4 md:pt-6 flex-1 min-h-0 flex flex-col">
             
-            <div className="grid grid-cols-7 gap-px bg-outline-variant/30 rounded-xl overflow-hidden border-2 border-outline-variant/30">
+            <div 
+              className="grid grid-cols-7 gap-px bg-outline-variant/30 rounded-xl overflow-hidden border-2 border-outline-variant/30 flex-1 min-h-0"
+              style={{ gridTemplateRows: 'auto repeat(5, minmax(0, 1fr))' }}
+            >
               {/* Header */}
               {daysOfWeek.map(day => (
-                <div key={day} className="bg-surface-container py-3 text-center text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant">
+                <div key={day} className="bg-surface-container py-2 lg:py-3 text-center text-[10px] md:text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant">
                   {day}
                 </div>
               ))}
               
               {/* Grid */}
               {calendarDays.map((day, idx) => (
-                <div key={idx} className={`min-h-[120px] p-2 sm:p-3 transition-colors hover:bg-primary/5 group cursor-pointer border-t border-outline-variant/20 ${day.isCurrentMonth ? 'bg-surface-container-lowest' : 'bg-surface-container-highest/40'}`}>
-                  <span className={`text-sm font-headline font-bold flex justify-end ${day.isCurrentMonth ? 'text-on-surface' : 'text-outline/40'}`}>
+                <div key={idx} className={`p-1.5 md:p-2 lg:p-3 overflow-y-auto transition-colors hover:bg-primary/5 group cursor-pointer border-t border-outline-variant/20 ${day.isCurrentMonth ? 'bg-surface-container-lowest' : 'bg-surface-container-highest/40'}`}>
+                  <span className={`text-xs lg:text-sm font-headline font-bold flex justify-end ${day.isCurrentMonth ? 'text-on-surface' : 'text-outline/40'}`}>
                     {day.date}
                   </span>
                   
                   {day.hasOrder && (
-                    <div className="mt-2 space-y-1.5">
-                      <div className="px-2 py-1 bg-[#ffdbcc] border-l-2 border-[#703210] rounded-r text-[10px] font-bold text-[#703210] shadow-sm truncate">
+                    <div className="mt-1 lg:mt-2 space-y-1 md:space-y-1.5">
+                      <div className="px-1.5 py-0.5 md:py-1 bg-[#ffdbcc] border-l-2 border-[#703210] rounded-r text-[9px] md:text-[10px] font-bold text-[#703210] shadow-sm truncate">
                         • 5x Croissants
                       </div>
                       {day.date === 27 && (
-                        <div className="px-2 py-1 bg-[#703210] border-l-2 border-[#ffdbcc] rounded-r text-[10px] font-bold text-white shadow-sm truncate">
+                        <div className="px-1.5 py-0.5 md:py-1 bg-[#703210] border-l-2 border-[#ffdbcc] rounded-r text-[9px] md:text-[10px] font-bold text-white shadow-sm truncate">
                           • 2x Custom Cakes
                         </div>
                       )}
