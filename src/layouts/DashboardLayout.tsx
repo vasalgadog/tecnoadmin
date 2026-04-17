@@ -1,5 +1,7 @@
+import * as React from 'react';
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { formatCLP, parseCLP } from '../utils/formatters';
 
 const navItems = [
   { path: '/', icon: 'grid_view', label: 'Home' },
@@ -24,6 +26,20 @@ export default function DashboardLayout() {
   const [isTillOpen, setIsTillOpen] = useState(false);
   const [isOpenTillModalOpen, setIsOpenTillModalOpen] = useState(false);
   const [isCloseTillModalOpen, setIsCloseTillModalOpen] = useState(false);
+
+  // Financial Formatting State
+  const [expenseAmount, setExpenseAmount] = useState('');
+  const [openTillAmount, setOpenTillAmount] = useState('');
+  const [closeBilletes, setCloseBilletes] = useState('');
+  const [closeMonedas, setCloseMonedas] = useState('');
+  const [closeVouchers, setCloseVouchers] = useState('');
+  const [closeOtros, setCloseOtros] = useState('');
+
+  const handleCLPChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    const numeric = parseCLP(raw);
+    setter(raw.length > 0 ? formatCLP(numeric) : '');
+  };
 
   const handleTillAction = () => {
     if (isTillOpen) {
@@ -125,23 +141,22 @@ export default function DashboardLayout() {
                 <h2 className="text-2xl font-headline font-extrabold text-primary">Register Expense</h2>
                 <button className="material-symbols-outlined text-outline hover:text-on-surface" onClick={() => setIsExpenseModalOpen(false)}>close</button>
               </div>
-              <div className="space-y-6">
+              <form onSubmit={(e) => { e.preventDefault(); setIsExpenseModalOpen(false); }} className="space-y-6">
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Valor</label>
+                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Valor *</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-outline">$</span>
-                    <input className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-lg font-bold py-4 pl-8" placeholder="0.00" type="number" />
+                    <input required value={expenseAmount} onChange={handleCLPChange(setExpenseAmount)} className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-lg font-bold py-4 pl-4" placeholder="$ 0" type="text" />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Descripción</label>
-                  <textarea className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 resize-none" placeholder="Explain the expense..." rows={3}></textarea>
+                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Descripción *</label>
+                  <textarea required className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 resize-none" placeholder="Explain the expense..." rows={3}></textarea>
                 </div>
                 <div className="flex gap-4">
-                  <button onClick={() => setIsExpenseModalOpen(false)} className="flex-1 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors">Cancel</button>
-                  <button onClick={() => setIsExpenseModalOpen(false)} className="flex-1 py-3 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity">Save Expense</button>
+                  <button type="button" onClick={() => setIsExpenseModalOpen(false)} className="flex-1 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors">Cancel</button>
+                  <button type="submit" className="flex-1 py-3 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity">Save Expense</button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         )}
@@ -154,18 +169,17 @@ export default function DashboardLayout() {
                 <h2 className="text-xl font-headline font-extrabold text-primary">Open Till</h2>
                 <button className="material-symbols-outlined text-outline hover:text-on-surface" onClick={() => setIsOpenTillModalOpen(false)}>close</button>
               </div>
-              <div className="space-y-6">
+              <form onSubmit={(e) => { e.preventDefault(); submitOpenTill(); }} className="space-y-6">
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Efectivo Inicial</label>
+                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Efectivo Inicial *</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-outline">$</span>
-                    <input autoFocus className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-lg font-bold py-4 pl-8" placeholder="0" type="number" />
+                    <input required autoFocus value={openTillAmount} onChange={handleCLPChange(setOpenTillAmount)} className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-lg font-bold py-4 pl-4" placeholder="$ 0" type="text" />
                   </div>
                 </div>
-                <button onClick={submitOpenTill} className="w-full py-4 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center">
+                <button type="submit" className="w-full py-4 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center">
                   <span className="material-symbols-outlined mr-2 text-sm">lock_open</span> Open Station
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         )}
@@ -199,35 +213,35 @@ export default function DashboardLayout() {
                 </div>
 
                 {/* Form Input Container */}
-                <div className="lg:col-span-7 bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm">
+                <form onSubmit={(e) => { e.preventDefault(); submitCloseTill(); }} className="lg:col-span-7 bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 shadow-sm">
                   <p className="text-sm text-outline mb-8 leading-relaxed">
                     Ingrese los montos físicos contados al finalizar el turno. Al guardar se generará un comprobante digital y se cerrará la sesión actual.
                   </p>
 
                   <div className="grid grid-cols-2 gap-6 mb-8">
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Efectivo (Billetes)</label>
-                      <input className="w-full bg-surface-container-high border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 transition-colors font-bold" placeholder="$ 0" type="number" />
+                      <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Efectivo (Billetes) *</label>
+                      <input required value={closeBilletes} onChange={handleCLPChange(setCloseBilletes)} className="w-full bg-surface-container-high border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 pl-3 transition-colors font-bold text-on-surface" placeholder="$ 0" type="text" />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Efectivo (Monedas)</label>
-                      <input className="w-full bg-surface-container-high border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 transition-colors font-bold" placeholder="$ 0" type="number" />
+                      <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Efectivo (Monedas) *</label>
+                      <input required value={closeMonedas} onChange={handleCLPChange(setCloseMonedas)} className="w-full bg-surface-container-high border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 pl-3 transition-colors font-bold text-on-surface" placeholder="$ 0" type="text" />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Vouchers (Transbank)</label>
-                      <input className="w-full bg-surface-container-high border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 transition-colors font-bold" placeholder="$ 0" type="number" />
+                      <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Vouchers (Transbank) *</label>
+                      <input required value={closeVouchers} onChange={handleCLPChange(setCloseVouchers)} className="w-full bg-surface-container-high border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 pl-3 transition-colors font-bold text-on-surface" placeholder="$ 0" type="text" />
                     </div>
                     <div className="space-y-1">
-                      <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Otros Medios</label>
-                      <input className="w-full bg-surface-container-high border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 transition-colors font-bold" placeholder="$ 0" type="number" />
+                      <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Otros Medios *</label>
+                      <input required value={closeOtros} onChange={handleCLPChange(setCloseOtros)} className="w-full bg-surface-container-high border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 pl-3 transition-colors font-bold text-on-surface" placeholder="$ 0" type="text" />
                     </div>
                   </div>
 
                   <div className="flex justify-end gap-4 border-t border-outline-variant/10 pt-6">
-                    <button onClick={() => setIsCloseTillModalOpen(false)} className="px-6 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors">Cancelar</button>
-                    <button onClick={submitCloseTill} className="px-6 py-3 text-sm font-bold bg-error text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity">Aprobar y Cerrar Caja</button>
+                    <button type="button" onClick={() => setIsCloseTillModalOpen(false)} className="px-6 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors">Cancelar</button>
+                    <button type="submit" className="px-6 py-3 text-sm font-bold bg-error text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity">Aprobar y Cerrar Caja</button>
                   </div>
-                </div>
+                </form>
               </div>
             </div>
           </div>
