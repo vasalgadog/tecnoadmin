@@ -9,6 +9,9 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-y: scroll;
+  }
 
   .material-symbols-outlined {
     font-family: 'Material Symbols Outlined';
