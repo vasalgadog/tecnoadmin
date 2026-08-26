@@ -14,7 +14,7 @@ export default function Login() {
     <div className="login-page surface-container-highest flex-center">
       <div className="glass-modal login-card ambient-shadow ghost-border">
         <h1 className="display" style={{ color: 'var(--primary)' }}>Tecnopan</h1>
-        <p className="subtitle">Bakery Management System</p>
+        <p className="subtitle">Sistema de Gestión de Panadería</p>
         
         <form className="login-form" onSubmit={handleLogin}>
           <div className="input-group">

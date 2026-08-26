@@ -4,7 +4,7 @@ export default function VerPedidos() {
   const [activeTab, setActiveTab] = useState<'calendar' | 'table'>('calendar');
 
   // Helper arrays for calendar mockup
-  const daysOfWeek = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  const daysOfWeek = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
   // We'll generate 35 days for a 5 week month simulation
   const calendarDays = Array.from({ length: 35 }, (_, i) => {
     // some static mocked logic for dates and active orders
@@ -47,14 +47,14 @@ export default function VerPedidos() {
                 className={`px-4 py-1.5 rounded-md font-bold transition-all flex items-center ${activeTab === 'calendar' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
               >
                 <span className="material-symbols-outlined text-[16px] mr-1.5">calendar_month</span>
-                Calendar
+                Calendario
               </button>
               <button 
                 onClick={() => setActiveTab('table')}
                 className={`px-4 py-1.5 rounded-md font-bold transition-all flex items-center ${activeTab === 'table' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
               >
                 <span className="material-symbols-outlined text-[16px] mr-1.5">table_rows</span>
-                Details
+                Detalles
               </button>
             </div>
 
@@ -63,11 +63,11 @@ export default function VerPedidos() {
             {/* Action Buttons */}
             <button className="bg-surface-container-high text-on-surface hover:text-primary px-4 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-all shadow-sm">
               <span className="material-symbols-outlined text-[18px]">filter_list</span>
-              Filters
+              Filtros
             </button>
             <button className="bg-[#fec178] text-[#784d0d] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
               <span className="material-symbols-outlined text-[18px]">print</span>
-              Print Report
+              Imprimir Reporte
             </button>
           </div>
         </div>
@@ -96,11 +96,11 @@ export default function VerPedidos() {
                   {day.hasOrder && (
                     <div className="mt-1 lg:mt-2 space-y-1 md:space-y-1.5">
                       <div className="px-1.5 py-0.5 md:py-1 bg-[#ffdbcc] border-l-2 border-[#703210] rounded-r text-[9px] md:text-[10px] font-bold text-[#703210] shadow-sm truncate">
-                        • 5x Croissants
+                        • 5x Medialunas
                       </div>
                       {day.date === 27 && (
                         <div className="px-1.5 py-0.5 md:py-1 bg-[#703210] border-l-2 border-[#ffdbcc] rounded-r text-[9px] md:text-[10px] font-bold text-white shadow-sm truncate">
-                          • 2x Custom Cakes
+                          • 2x Tortas Personalizadas
                         </div>
                       )}
                     </div>
@@ -112,11 +112,11 @@ export default function VerPedidos() {
             <div className="mt-6 flex items-center justify-end gap-6 text-xs font-label">
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-tertiary-container/50 border border-tertiary-container"></span>
-                <span className="text-outline uppercase tracking-wider">Regular Orders</span>
+                <span className="text-outline uppercase tracking-wider">Pedidos Regulares</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-primary-fixed border border-primary/20"></span>
-                <span className="text-outline uppercase tracking-wider">Custom Cakes</span>
+                <span className="text-outline uppercase tracking-wider">Tortas Personalizadas</span>
               </div>
             </div>
           </div>
@@ -125,22 +125,22 @@ export default function VerPedidos() {
             {/* Bento Stats Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="bg-surface-container-low p-5 rounded-xl">
-                <p className="text-[10px] font-label uppercase text-outline mb-1">Total Orders</p>
+                <p className="text-[10px] font-label uppercase text-outline mb-1">Total de Pedidos</p>
                 <h3 className="text-2xl font-headline font-extrabold text-primary">124</h3>
-                <div className="mt-1 text-[10px] text-secondary font-medium">+12% from yesterday</div>
+                <div className="mt-1 text-[10px] text-secondary font-medium">+12% desde ayer</div>
               </div>
               <div className="bg-surface-container-low p-5 rounded-xl border-l-4 border-secondary-container">
-                <p className="text-[10px] font-label uppercase text-outline mb-1">Revenue Today</p>
+                <p className="text-[10px] font-label uppercase text-outline mb-1">Ingresos de Hoy</p>
                 <h3 className="text-2xl font-headline font-extrabold text-primary">$1,842.50</h3>
                 <div className="mt-1 text-[10px] text-outline opacity-0">spacer</div>
               </div>
               <div className="bg-surface-container-low p-5 rounded-xl">
-                <p className="text-[10px] font-label uppercase text-outline mb-1">Pending Pickups</p>
+                <p className="text-[10px] font-label uppercase text-outline mb-1">Retiros Pendientes</p>
                 <h3 className="text-2xl font-headline font-extrabold text-tertiary">18</h3>
                 <div className="mt-1 text-[10px] text-outline opacity-0">spacer</div>
               </div>
               <div className="bg-surface-container-low p-5 rounded-xl">
-                <p className="text-[10px] font-label uppercase text-outline mb-1">Payment Completion</p>
+                <p className="text-[10px] font-label uppercase text-outline mb-1">Pago Completado</p>
                 <h3 className="text-2xl font-headline font-extrabold text-primary">94%</h3>
                 <div className="mt-1 text-[10px] text-outline opacity-0">spacer</div>
               </div>
@@ -152,12 +152,12 @@ export default function VerPedidos() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-highest border-b border-outline-variant/20">
-                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Customer Name</th>
-                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Phone</th>
-                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Date &amp; Time</th>
-                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Order Details</th>
-                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant text-center">Status</th>
-                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant text-right">Action</th>
+                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Nombre del Cliente</th>
+                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Teléfono</th>
+                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Fecha y Hora</th>
+                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Detalles del Pedido</th>
+                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant text-center">Estado</th>
+                      <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant text-right">Acción</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
@@ -172,13 +172,13 @@ export default function VerPedidos() {
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex flex-wrap gap-1.5">
-                          <span className="text-[10px] bg-tertiary-container/40 text-on-tertiary-container px-2 py-0.5 rounded font-medium">2x Sourdough</span>
-                          <span className="text-[10px] bg-tertiary-container/40 text-on-tertiary-container px-2 py-0.5 rounded font-medium">5x Croissants</span>
+                          <span className="text-[10px] bg-tertiary-container/40 text-on-tertiary-container px-2 py-0.5 rounded font-medium">2x Masa Madre</span>
+                          <span className="text-[10px] bg-tertiary-container/40 text-on-tertiary-container px-2 py-0.5 rounded font-medium">5x Medialunas</span>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-center">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#fec178]/20 text-[#784d0d] uppercase tracking-tighter">
-                          Paid
+                          Pagado
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right">
@@ -203,7 +203,7 @@ export default function VerPedidos() {
                       </td>
                       <td className="px-6 py-5 text-center">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-error-container text-error uppercase tracking-tighter">
-                          Pending
+                          Pendiente
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right">
@@ -218,7 +218,7 @@ export default function VerPedidos() {
               
               {/* Pagination */}
               <div className="px-6 py-4 flex items-center justify-between border-t border-outline-variant/10 bg-surface-container-low">
-                <p className="text-xs text-outline font-label">Showing 1-2 of 124 orders</p>
+                <p className="text-xs text-outline font-label">Mostrando 1-2 de 124 pedidos</p>
                 <div className="flex items-center gap-1.5">
                   <button className="p-1.5 text-outline hover:text-primary transition-colors">
                     <span className="material-symbols-outlined text-xl">chevron_left</span>

@@ -7,6 +7,8 @@ import Inicio from './pages/Inicio';
 import VerCajas from './pages/VerCajas';
 import CantidadDePan from './pages/CantidadDePan';
 import VerPedidos from './pages/VerPedidos';
+import Productos from './pages/Productos';
+import Tecnocard from './pages/Tecnocard';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
           <Route path="/verCajas" element={<VerCajas />} />
           <Route path="/produccion" element={<CantidadDePan />} />
           <Route path="/pedidos" element={<VerPedidos />} />
+          <Route path="/productos" element={<Productos />} />
+          <Route path="/tecnocard" element={<Tecnocard />} />
         </Route>
       </Routes>
     </BrowserRouter>

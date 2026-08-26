@@ -10,9 +10,9 @@ export default function OrderRegistration() {
     { id: Date.now(), quantity: 1, name: '', price: 0 }
   ]);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Real total dynamically computed
-  const orderTotal = products.reduce((acc, curr) => acc + (curr.price || 0), 0); 
+  const orderTotal = products.reduce((acc, curr) => acc + (curr.price || 0), 0);
 
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPhone(formatChileanPhone(e.target.value));
@@ -70,15 +70,14 @@ export default function OrderRegistration() {
 
     console.log("Order Submitted", { phone, abonoAmount, paymentStatus, products });
     // Execute backend logic...
-    alert("Order successfully validated and saved!");
+    alert("¡Pedido validado y guardado correctamente!");
   };
 
   return (
     <div className="bg-surface-container-low p-8 rounded-xl border border-[#d9c2b8]/20 shadow-sm">
       <header className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-xl font-headline font-bold text-on-surface">Order Registration</h2>
-          <p className="text-sm text-outline">Manage custom artisanal requests</p>
+          <h2 className="text-xl font-headline font-bold text-on-surface">Registro de Pedidos</h2>
         </div>
         <div className="bg-surface-container-lowest p-2 rounded-full shadow-sm text-primary flex items-center justify-center">
           <span className="material-symbols-outlined">list_alt</span>
@@ -89,19 +88,19 @@ export default function OrderRegistration() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Customer Info */}
           <div className="space-y-1">
-            <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Customer Name *</label>
-            <input required className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2 transition-colors text-on-surface" placeholder="John Doe" type="text" />
+            <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Nombre del Cliente *</label>
+            <input required className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2 transition-colors text-on-surface" placeholder="Juan Pérez" type="text" />
           </div>
           <div className="space-y-1">
-            <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Phone Number *</label>
+            <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Número de Teléfono *</label>
             <input required value={phone} onChange={handlePhoneChange} className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2 transition-colors text-on-surface" placeholder="+56 9 XXXX XXXX" type="tel" />
           </div>
           <div className="space-y-1">
-            <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Delivery Date *</label>
+            <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Fecha de Entrega *</label>
             <input required className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2 transition-colors text-on-surface" type="date" />
           </div>
           <div className="space-y-1">
-            <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Delivery Time *</label>
+            <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Hora de Entrega *</label>
             <input required className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2 transition-colors text-on-surface" type="time" />
           </div>
         </div>
@@ -109,75 +108,75 @@ export default function OrderRegistration() {
         {/* Dynamic Product Section */}
         <div className="pt-2 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-[11px] font-label uppercase tracking-widest text-outline font-bold">Products</h3>
+            <h3 className="text-[11px] font-label uppercase tracking-widest text-outline font-bold">Productos</h3>
             <button onClick={handleAddProduct} className="text-primary flex items-center text-[10px] font-bold uppercase tracking-wider hover:bg-primary-container/80 transition-colors bg-primary-container px-2 py-1 rounded-md" type="button">
-              <span className="material-symbols-outlined text-[14px] mr-1">add</span> Add
+              <span className="material-symbols-outlined text-[14px] mr-1">add</span> Añadir
             </button>
           </div>
-          
+
           {/* Header Row */}
           <div className="grid grid-cols-12 gap-2 px-1">
-             <div className="col-span-2 text-[9px] font-label uppercase text-outline tracking-wider">Cant</div>
-             <div className="col-span-7 text-[9px] font-label uppercase text-outline tracking-wider">Producto</div>
-             <div className="col-span-2 text-[9px] font-label uppercase text-outline tracking-wider text-right">Valor</div>
-             <div className="col-span-1"></div>
+            <div className="col-span-2 text-[9px] font-label uppercase text-outline tracking-wider">Cant</div>
+            <div className="col-span-7 text-[9px] font-label uppercase text-outline tracking-wider">Producto</div>
+            <div className="col-span-2 text-[9px] font-label uppercase text-outline tracking-wider text-right">Valor</div>
+            <div className="col-span-1"></div>
           </div>
 
           <div className="space-y-2">
             {products.map((p) => (
               <div key={p.id} className="grid grid-cols-12 gap-2 items-center bg-surface-container-low rounded-lg p-1 border border-outline-variant/20">
-                
+
                 {/* Quantity - Narrower and Taller */}
                 <div className="col-span-2 flex items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10 h-9">
                   <button type="button" onClick={() => handleUpdateQuantity(p.id, -1)} className="w-6 h-full text-primary hover:bg-surface-variant transition-colors flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[14px]">remove</span>
                   </button>
-                  <input 
-                    type="text" 
-                    className="w-full bg-transparent text-center border-none text-[11px] font-extrabold p-0 focus:ring-0 min-w-0" 
-                    value={p.quantity} 
+                  <input
+                    type="text"
+                    className="w-full bg-transparent text-center border-none text-[11px] font-extrabold p-0 focus:ring-0 min-w-0"
+                    value={p.quantity}
                     maxLength={3}
-                    onChange={(e) => handleUpdateProduct(p.id, 'quantity', parseInt(e.target.value.replace(/\D/g, '')) || 1)} 
+                    onChange={(e) => handleUpdateProduct(p.id, 'quantity', parseInt(e.target.value.replace(/\D/g, '')) || 1)}
                   />
                   <button type="button" onClick={() => handleUpdateQuantity(p.id, 1)} className="w-6 h-full text-primary hover:bg-surface-variant transition-colors flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[14px]">add</span>
                   </button>
                 </div>
-                
+
                 {/* Product Name Search - Wider */}
                 <div className="col-span-7 relative">
                   <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-outline material-symbols-outlined text-[14px]">search</span>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     required
-                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-semibold py-2 pl-6 pr-1 h-9 focus:ring-1 focus:ring-primary placeholder:text-outline-variant" 
-                    placeholder="Buscar..." 
-                    value={p.name} 
-                    onChange={(e) => handleUpdateProduct(p.id, 'name', e.target.value)} 
+                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-semibold py-2 pl-6 pr-1 h-9 focus:ring-1 focus:ring-primary placeholder:text-outline-variant"
+                    placeholder="Buscar..."
+                    value={p.name}
+                    onChange={(e) => handleUpdateProduct(p.id, 'name', e.target.value)}
                   />
                 </div>
-                
+
                 {/* Final Value - Narrower */}
                 <div className="col-span-2 relative">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     required
-                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-bold py-2 px-1 text-right h-9 focus:ring-1 focus:ring-primary text-secondary" 
-                    value={p.price ? formatCLP(p.price) : ''} 
+                    className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-bold py-2 px-1 text-right h-9 focus:ring-1 focus:ring-primary text-secondary"
+                    value={p.price ? formatCLP(p.price) : ''}
                     placeholder="$ 0"
                     onChange={(e) => {
                       const val = parseCLP(e.target.value);
                       if (val.toString().length <= 6) {
                         handleUpdateProduct(p.id, 'price', val);
                       }
-                    }} 
+                    }}
                   />
                 </div>
 
                 {/* Delete Button */}
                 <div className="col-span-1 flex justify-center">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => handleDeleteProduct(p.id)}
                     className="w-7 h-7 rounded-md text-outline hover:text-error hover:bg-error/10 transition-all flex items-center justify-center"
                   >
@@ -192,34 +191,34 @@ export default function OrderRegistration() {
 
         {/* Financial Summary Mockup */}
         <div className="bg-surface-container-highest/60 rounded-lg p-3 border border-outline-variant/30 flex justify-between items-center group hover:border-primary/30 transition-colors">
-          <span className="text-[10px] font-label uppercase tracking-widest text-outline font-bold group-hover:text-primary transition-colors">Order Total</span>
+          <span className="text-[10px] font-label uppercase tracking-widest text-outline font-bold group-hover:text-primary transition-colors">Total del Pedido</span>
           <span className="text-xl font-headline font-extrabold text-primary">{formatCLP(orderTotal)}</span>
         </div>
 
         {/* Payment Status (High Contrast & Compact) */}
         <div className="pt-2 space-y-3 border-t border-outline-variant/10">
-          <label className="block text-[11px] font-label uppercase tracking-wider text-outline">Payment Type *</label>
+          <label className="block text-[11px] font-label uppercase tracking-wider text-outline">Tipo de Pago *</label>
           <div className="flex space-x-3">
             <label className="flex-1 flex items-center justify-center py-2 px-3 rounded-lg bg-surface cursor-pointer border border-outline-variant/50 transition-all hover:border-primary/50 has-[:checked]:border-secondary has-[:checked]:bg-secondary has-[:checked]:text-white text-on-surface-variant font-bold shadow-sm">
-              <input 
-                className="hidden peer" 
-                name="payment" 
-                type="radio" 
-                value="abono" 
-                checked={paymentStatus === 'abono'} 
-                onChange={() => setPaymentStatus('abono')} 
+              <input
+                className="hidden peer"
+                name="payment"
+                type="radio"
+                value="abono"
+                checked={paymentStatus === 'abono'}
+                onChange={() => setPaymentStatus('abono')}
               />
               <span className="material-symbols-outlined mr-2 text-[18px]">payments</span>
               <span className="text-[11px] uppercase tracking-widest">Abono</span>
             </label>
             <label className="flex-1 flex items-center justify-center py-2 px-3 rounded-lg bg-surface cursor-pointer border border-outline-variant/50 transition-all hover:border-primary/50 has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-white text-on-surface-variant font-bold shadow-sm">
-              <input 
-                className="hidden peer" 
-                name="payment" 
-                type="radio" 
-                value="pagado" 
-                checked={paymentStatus === 'pagado'} 
-                onChange={() => setPaymentStatus('pagado')} 
+              <input
+                className="hidden peer"
+                name="payment"
+                type="radio"
+                value="pagado"
+                checked={paymentStatus === 'pagado'}
+                onChange={() => setPaymentStatus('pagado')}
               />
               <span className="material-symbols-outlined mr-2 text-[18px]">check_circle</span>
               <span className="text-[11px] uppercase tracking-widest">Pagado</span>
@@ -231,13 +230,13 @@ export default function OrderRegistration() {
             <div className="space-y-1">
               <label className="block text-[10px] font-label uppercase tracking-wider text-outline px-1">Monto Abonado *</label>
               <div className="relative">
-                <input 
+                <input
                   required={paymentStatus === 'abono'}
                   value={abonoAmount}
                   onChange={handleAbonoChange}
-                  className="w-full bg-surface-container-highest border-b-2 border-secondary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-base font-bold py-2 pl-3 transition-colors text-on-surface" 
-                  placeholder="$ 0" 
-                  type="text" 
+                  className="w-full bg-surface-container-highest border-b-2 border-secondary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-base font-bold py-2 pl-3 transition-colors text-on-surface"
+                  placeholder="$ 0"
+                  type="text"
                   disabled={paymentStatus !== 'abono'}
                 />
               </div>
@@ -254,7 +253,7 @@ export default function OrderRegistration() {
           )}
           <button className="w-full py-3 rounded-lg bg-primary text-white text-sm font-bold shadow-md hover:-translate-y-0.5 transition-all flex justify-center items-center" type="submit">
             <span className="material-symbols-outlined mr-2 text-[20px]">shopping_cart_checkout</span>
-            Finalize Order
+            Finalizar Pedido
           </button>
         </div>
       </form>

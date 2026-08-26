@@ -4,17 +4,21 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { formatCLP, parseCLP } from '../utils/formatters';
 
 const navItems = [
-  { path: '/', icon: 'grid_view', label: 'Home' },
-  { path: '/pedidos', icon: 'receipt_long', label: 'View Orders' },
-  { path: '/produccion', icon: 'bakery_dining', label: 'View Bread Quantity' },
-  { path: '/verCajas', icon: 'payments', label: 'View Tills' }
+  { path: '/', icon: 'grid_view', label: 'Inicio' },
+  { path: '/pedidos', icon: 'receipt_long', label: 'Ver Pedidos' },
+  { path: '/produccion', icon: 'bakery_dining', label: 'Cantidad de Pan' },
+  { path: '/verCajas', icon: 'payments', label: 'Ver Cajas' },
+  { path: '/productos', icon: 'inventory_2', label: 'Productos' },
+  { path: '/tecnocard', icon: 'credit_card', label: 'Tecnocard' }
 ];
 
 const getRouteTitle = (pathname: string) => {
-  if (pathname === '/') return 'Dashboard Overview';
-  if (pathname.startsWith('/pedidos')) return 'View Orders';
-  if (pathname.startsWith('/produccion')) return 'Bread Quantity Inventory';
-  if (pathname.startsWith('/verCajas')) return 'Till Management';
+  if (pathname === '/') return 'Resumen del Dashboard';
+  if (pathname.startsWith('/pedidos')) return 'Ver Pedidos';
+  if (pathname.startsWith('/produccion')) return 'Inventario de Cantidad de Pan';
+  if (pathname.startsWith('/verCajas')) return 'Gestión de Cajas';
+  if (pathname.startsWith('/productos')) return 'Inventario de Productos';
+  if (pathname.startsWith('/tecnocard')) return 'Tarjetas Tecnocard';
   return 'Tecnopan';
 };
 
@@ -79,7 +83,7 @@ export default function DashboardLayout() {
         <div className={`mb-10 flex items-center px-0 xl:px-6 justify-center xl:justify-start max-[499px]:px-6 max-[499px]:justify-start ${isSidebarExpanded ? '!px-6 !justify-start' : ''}`}>
           <div className="flex flex-col items-center xl:items-start text-center xl:text-left max-[499px]:items-start max-[499px]:text-left">
             <h1 className={`text-2xl font-bold text-[#703210] font-headline tracking-tight hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Tecnopan</h1>
-            <p className={`text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1 hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Artisanal Management</p>
+            <p className={`text-xs font-semibold text-stone-500 font-label uppercase tracking-widest mt-1 hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Gestión Artesanal</p>
             {/* Icon-only fallback when collapsed */}
             <span className={`material-symbols-outlined text-3xl text-[#703210] block xl:hidden max-[499px]:hidden ${isSidebarExpanded ? '!hidden' : ''}`} style={{ fontVariationSettings: "'FILL' 1" }}>bakery_dining</span>
           </div>
@@ -109,9 +113,9 @@ export default function DashboardLayout() {
         </nav>
         
         <div className={`mt-auto pt-4 border-t border-outline-variant/10 px-2 xl:px-6 max-[499px]:px-6 ${isSidebarExpanded ? '!px-6' : ''}`}>
-          <button className={`flex items-center py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg justify-center w-full xl:justify-start xl:px-4 max-[499px]:justify-start max-[499px]:px-4 ${isSidebarExpanded ? '!w-full !justify-start !px-4' : ''}`} title="Logout">
+          <button className={`flex items-center py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg justify-center w-full xl:justify-start xl:px-4 max-[499px]:justify-start max-[499px]:px-4 ${isSidebarExpanded ? '!w-full !justify-start !px-4' : ''}`} title="Cerrar Sesión">
             <span className={`material-symbols-outlined mr-0 xl:mr-3 max-[499px]:mr-3 ${isSidebarExpanded ? '!mr-3' : ''}`}>logout</span>
-            <span className={`text-sm font-label uppercase tracking-wide hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Logout</span>
+            <span className={`text-sm font-label uppercase tracking-wide hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Cerrar Sesión</span>
           </button>
         </div>
       </aside>
@@ -134,7 +138,7 @@ export default function DashboardLayout() {
               className={`px-3 md:px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-all flex items-center ${isTillOpen ? 'bg-secondary-fixed-dim text-on-secondary-fixed' : 'bg-surface-container-highest text-on-surface'}`}
             >
               <span className="material-symbols-outlined text-sm mr-0 md:mr-2">{isTillOpen ? 'lock' : 'lock_open_right'}</span>
-              <span className="hidden md:inline">{isTillOpen ? 'Close Till' : 'Open Till'}</span>
+              <span className="hidden md:inline">{isTillOpen ? 'Cerrar Caja' : 'Abrir Caja'}</span>
             </button>
 
             {/* Register Expense Button */}
@@ -143,7 +147,7 @@ export default function DashboardLayout() {
               className="bg-primary text-white px-3 md:px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center"
             >
               <span className="material-symbols-outlined text-sm mr-0 md:mr-2">add_circle</span>
-              <span className="hidden md:inline">Expense</span>
+              <span className="hidden md:inline">Gasto</span>
             </button>
 
             <div className="flex items-center space-x-2 md:space-x-4 text-stone-500">
@@ -160,7 +164,7 @@ export default function DashboardLayout() {
           <div className="fixed inset-0 bg-[#1a1c1b]/20 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
             <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-8">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-headline font-extrabold text-primary">Register Expense</h2>
+                <h2 className="text-2xl font-headline font-extrabold text-primary">Registrar Gasto</h2>
                 <button className="material-symbols-outlined text-outline hover:text-on-surface" onClick={() => setIsExpenseModalOpen(false)}>close</button>
               </div>
               <form onSubmit={(e) => { e.preventDefault(); setIsExpenseModalOpen(false); }} className="space-y-6">
@@ -172,11 +176,11 @@ export default function DashboardLayout() {
                 </div>
                 <div className="space-y-1">
                   <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1">Descripción *</label>
-                  <textarea required className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 resize-none" placeholder="Explain the expense..." rows={3}></textarea>
+                  <textarea required className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 resize-none" placeholder="Explique el gasto..." rows={3}></textarea>
                 </div>
                 <div className="flex gap-4">
-                  <button type="button" onClick={() => setIsExpenseModalOpen(false)} className="flex-1 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors">Cancel</button>
-                  <button type="submit" className="flex-1 py-3 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity">Save Expense</button>
+                  <button type="button" onClick={() => setIsExpenseModalOpen(false)} className="flex-1 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors">Cancelar</button>
+                  <button type="submit" className="flex-1 py-3 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity">Guardar Gasto</button>
                 </div>
               </form>
             </div>
@@ -188,7 +192,7 @@ export default function DashboardLayout() {
           <div className="fixed inset-0 bg-[#1a1c1b]/20 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
             <div className="bg-surface-container-lowest w-full max-w-sm rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-8">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-headline font-extrabold text-primary">Open Till</h2>
+                <h2 className="text-xl font-headline font-extrabold text-primary">Abrir Caja</h2>
                 <button className="material-symbols-outlined text-outline hover:text-on-surface" onClick={() => setIsOpenTillModalOpen(false)}>close</button>
               </div>
               <form onSubmit={(e) => { e.preventDefault(); submitOpenTill(); }} className="space-y-6">
@@ -199,7 +203,7 @@ export default function DashboardLayout() {
                   </div>
                 </div>
                 <button type="submit" className="w-full py-4 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center">
-                  <span className="material-symbols-outlined mr-2 text-sm">lock_open</span> Open Station
+                  <span className="material-symbols-outlined mr-2 text-sm">lock_open</span> Abrir Caja
                 </button>
               </form>
             </div>
@@ -212,8 +216,8 @@ export default function DashboardLayout() {
             <div className="bg-surface w-full max-w-4xl rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-8 border border-outline-variant/10 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-8 pb-4 border-b border-outline-variant/20">
                 <div>
-                  <h2 className="text-2xl font-headline font-extrabold text-primary">Close Till — Station 01</h2>
-                  <p className="text-sm font-label text-outline mt-1 uppercase tracking-widest font-bold">End of Shift Declarations</p>
+                  <h2 className="text-2xl font-headline font-extrabold text-primary">Cerrar Caja — Estación 01</h2>
+                  <p className="text-sm font-label text-outline mt-1 uppercase tracking-widest font-bold">Declaraciones de Fin de Turno</p>
                 </div>
                 <button className="material-symbols-outlined text-outline hover:text-on-surface" onClick={() => setIsCloseTillModalOpen(false)}>close</button>
               </div>
@@ -221,7 +225,7 @@ export default function DashboardLayout() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Station Summary */}
                 <div className="lg:col-span-5 bg-surface-container-highest/30 rounded-xl p-6 border border-outline-variant/20">
-                  <h3 className="text-sm font-headline font-bold text-on-surface mb-6 uppercase tracking-wider border-b border-outline-variant/10 pb-4">Activity Summary</h3>
+                  <h3 className="text-sm font-headline font-bold text-on-surface mb-6 uppercase tracking-wider border-b border-outline-variant/10 pb-4">Resumen de Actividad</h3>
                   
                   <div className="mb-6 bg-surface-container-lowest p-4 rounded-lg shadow-sm">
                     <p className="text-[10px] font-label uppercase tracking-widest text-outline mb-1 font-bold">Ventas del Turno</p>
