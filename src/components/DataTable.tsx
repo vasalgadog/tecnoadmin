@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import './DataTable.css';
 
 export interface Column<T> {
-  header: string;
+  header: ReactNode;
   accessor: keyof T;
   render?: (row: T) => ReactNode;
 }
@@ -10,9 +10,11 @@ export interface Column<T> {
 interface DataTableProps<T> {
   columns: Column<T>[];
   data: T[];
+  onRowClick?: (row: T) => void;
+  expandedRowRender?: (row: T) => React.ReactNode;
 }
 
-export default function DataTable<T extends { id: string | number }>({ columns, data }: DataTableProps<T>) {
+export default function DataTable<T extends { id: string | number }>({ columns, data, onRowClick, expandedRowRender }: DataTableProps<T>) {
   return (
     <div className="data-table-container ghost-border ambient-shadow">
       <table className="data-table">
@@ -32,13 +34,25 @@ export default function DataTable<T extends { id: string | number }>({ columns, 
             </tr>
           ) : (
             data.map((row) => (
-              <tr key={row.id}>
-                {columns.map((col, idx) => (
-                  <td key={idx}>
-                    {col.render ? col.render(row) : (row[col.accessor] as ReactNode)}
-                  </td>
-                ))}
-              </tr>
+<>
+                  <tr
+                    onClick={() => onRowClick && onRowClick(row)}
+                    className="cursor-pointer hover:bg-primary-fixed/20 transition-colors"
+                  >
+                    {columns.map((col, idx) => (
+                      <td key={idx}>
+                        {col.render ? col.render(row) : (row[col.accessor] as ReactNode)}
+                      </td>
+                    ))}
+                  </tr>
+                  {expandedRowRender && expandedRowRender(row) && (
+                    <tr>
+                      <td colSpan={columns.length} className="bg-surface-low p-4">
+                        {expandedRowRender(row)}
+                      </td>
+                    </tr>
+                  )}
+                </>
             ))
           )}
         </tbody>

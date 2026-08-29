@@ -29,12 +29,6 @@ const formatFecha = (d: Date | null) => {
 const formatVencimiento = (d: Date) =>
   d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
 
-const mascararRut = (rut: string) => {
-  const partes = rut.split('-');
-  if (partes.length < 2) return rut;
-  return `${partes[0].slice(0, -2)}**-${partes[1]}`;
-};
-
 /** Verifica y formatea un RUT chileno. Retorna el RUT formateado (XX.XXX.XXX-D) o null si es inválido. */
 const validarYFormatearRut = (input: string): string | null => {
   // Strip everything except digits and K/k
