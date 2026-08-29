@@ -12,10 +12,10 @@ import Tecnocard from './pages/Tecnocard';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/tecnoadmin">
       <Routes>
         <Route path="/login" element={<Login />} />
-        
+
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<Inicio />} />
           <Route path="/verCajas" element={<VerCajas />} />
