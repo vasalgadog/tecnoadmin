@@ -156,15 +156,21 @@ export default function OrderRegistration() {
     setError(null);
 
     // Business Logic Validations
-    const hasValidProduct = products.some(p => p.name.trim() !== '' && p.price > 0 && p.db_id);
+    const hasValidProduct = products.some(p => p.name.trim() !== '' && p.db_id);
     if (!hasValidProduct) {
       setError('El pedido debe tener al menos un producto válido seleccionado.');
       return;
     }
 
+    const hasZeroPriceProduct = products.some(p => p.name.trim() !== '' && p.db_id && p.price === 0);
+
     if (paymentStatus === 'abono') {
       const parsedAbono = parseCLP(abonoAmount);
-      if (parsedAbono > orderTotal) {
+      if (parsedAbono <= 0) {
+        setError('El monto abonado debe ser mayor a 0.');
+        return;
+      }
+      if (!hasZeroPriceProduct && parsedAbono > orderTotal) {
         setError(`El monto abonado no puede ser mayor al total (${formatCLP(orderTotal)}).`);
         return;
       }
@@ -199,7 +205,7 @@ export default function OrderRegistration() {
       mount_paid: paymentStatus === 'abono' ? parseCLP(abonoAmount) : orderTotal,
       totally_paid: paymentStatus === 'pagado',
       comment: comment,
-      products: products.filter(p => p.name.trim() !== '' && p.price > 0 && p.db_id).map(p => ({
+      products: products.filter(p => p.name.trim() !== '' && p.db_id).map(p => ({
         product_id: p.db_id,
         quantity: p.quantity
       }))
@@ -225,7 +231,7 @@ export default function OrderRegistration() {
       if (submitError) throw submitError;
       
       const productList = products
-        .filter(p => p.name.trim() !== '' && p.price > 0 && p.db_id)
+        .filter(p => p.name.trim() !== '' && p.db_id)
         .map(p => `- ${p.quantity}x ${p.name}`)
         .join('\n');
         
@@ -312,7 +318,7 @@ export default function OrderRegistration() {
         <div className="pt-2 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-[11px] font-label uppercase tracking-widest text-outline font-bold">Productos</h3>
-            <button onClick={handleAddProduct} className="text-primary flex items-center text-[10px] font-bold uppercase tracking-wider hover:bg-primary-container/80 transition-colors bg-primary-container px-2 py-1 rounded-md" type="button">
+            <button onClick={handleAddProduct} className="text-white flex items-center text-[10px] font-bold uppercase tracking-wider hover:bg-primary transition-colors bg-primary-container px-2 py-1 rounded-md shadow-sm" type="button">
               <span className="material-symbols-outlined text-[14px] mr-1">add</span> Añadir
             </button>
           </div>
@@ -386,8 +392,8 @@ export default function OrderRegistration() {
                     <input
                       type="text"
                       required
-                      className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-bold py-2 px-1 text-right h-9 focus:ring-1 focus:ring-primary text-secondary"
-                      value={p.price ? formatCLP(p.price) : ''}
+                      className={`w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-[10px] font-bold py-2 px-1 text-right h-9 focus:ring-1 focus:ring-primary ${p.price === 0 && (p.db_id || p.name) ? 'text-amber-800 italic' : 'text-secondary'}`}
+                      value={p.price === 0 && (p.db_id || p.name) ? 'Pendiente' : (p.price ? formatCLP(p.price) : '')}
                       placeholder="$ 0"
                       onChange={(e) => {
                         const val = parseCLP(e.target.value);

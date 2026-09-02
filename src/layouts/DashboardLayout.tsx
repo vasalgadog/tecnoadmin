@@ -6,8 +6,8 @@ import { formatCLP, parseCLP } from '../utils/formatters';
 const navItems = [
   { path: '/', icon: 'grid_view', label: 'Inicio' },
   { path: '/pedidos', icon: 'receipt_long', label: 'Ver Pedidos' },
-  { path: '/produccion', icon: 'bakery_dining', label: 'Cantidad de Pan' },
-  { path: '/verCajas', icon: 'payments', label: 'Ver Cajas' },
+  { path: '/produccion', icon: 'bakery_dining', label: 'Cantidad de Pan', hidden: true },
+  { path: '/verCajas', icon: 'payments', label: 'Ver Cajas', hidden: true },
   { path: '/productos', icon: 'inventory_2', label: 'Productos' },
   { path: '/tecnocard', icon: 'credit_card', label: 'Tecnocard' }
 ];
@@ -90,7 +90,7 @@ export default function DashboardLayout() {
         </div>
         
         <nav className="flex-1 space-y-2 overflow-y-auto w-full mt-2">
-          {navItems.map((item) => {
+          {navItems.filter(item => !item.hidden).map((item) => {
             const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
             const baseClasses = "flex items-center py-3 transition-colors duration-200 group active:scale-[0.98]";
             const activeClasses = isActive ? "bg-[#ffdbcc] text-[#703210] font-bold" : "text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6]";
@@ -132,8 +132,9 @@ export default function DashboardLayout() {
           </div>
           
           <div className="flex items-center space-x-3 md:space-x-6">
-            {/* Till Switch Button */}
+            {/* Till Switch Button (Oculto según Paso 1.1) */}
             <button 
+              style={{ display: 'none' }}
               onClick={handleTillAction} 
               className={`px-3 md:px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-all flex items-center ${isTillOpen ? 'bg-secondary-fixed-dim text-on-secondary-fixed' : 'bg-surface-container-highest text-on-surface'}`}
             >
@@ -141,8 +142,9 @@ export default function DashboardLayout() {
               <span className="hidden md:inline">{isTillOpen ? 'Cerrar Caja' : 'Abrir Caja'}</span>
             </button>
 
-            {/* Register Expense Button */}
+            {/* Register Expense Button (Oculto según Paso 1.1) */}
             <button 
+              style={{ display: 'none' }}
               onClick={() => setIsExpenseModalOpen(true)} 
               className="bg-primary text-white px-3 md:px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-opacity flex items-center"
             >

@@ -8,12 +8,12 @@ export default function Inicio() {
         <div className="grid grid-cols-1 min-[700px]:grid-cols-12 gap-6 items-start max-w-[1440px] mx-auto">
           
           {/* Panel 1: Order Registration (Left) */}
-          <section className="min-[700px]:col-span-7 flex-1">
+          <section className="min-[700px]:col-span-12 flex-1">
              <OrderRegistration />
           </section>
 
-          {/* Panel 2: Bread Registration (Right) */}
-          <section className="min-[700px]:col-span-5 space-y-6 flex-1">
+          {/* Panel 2: Bread Registration (Right - Oculto según Paso 1.3) */}
+          <section style={{ display: 'none' }} className="min-[700px]:col-span-5 space-y-6 flex-1">
              <BreadRegistration />
           </section>
           
