@@ -1,51 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
 import { formatCLP, parseCLP } from '../utils/formatters';
 
-interface Producto {
+interface Product {
   id: number;
-  nombre: string;
-  precio: number;
-  tipo: string;
+  name: string;
+  value: number;
+  is_active?: boolean;
+  active?: boolean;
 }
 
 export default function Productos() {
-  const [productos, setProductos] = useState<Producto[]>([
-    { id: 1, nombre: 'Hallulla de la Casa', precio: 1500, tipo: 'Pan' },
-    { id: 2, nombre: 'Marraqueta / Pan Francés', precio: 1600, tipo: 'Pan' },
-    { id: 3, nombre: 'Medialuna Dulce (Manjar)', precio: 800, tipo: 'Bollería' },
-    { id: 4, nombre: 'Croissant Mantequilla', precio: 1200, tipo: 'Bollería' },
-    { id: 5, nombre: 'Torta de Hojarasca Manjar Pastelera', precio: 18000, tipo: 'Pastel' },
-    { id: 6, nombre: 'Empanada de Pino Horno', precio: 2200, tipo: 'Salado' },
-  ]);
-
+  const [productos, setProductos] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
+  const [editingProducto, setEditingProducto] = useState<Product | null>(null);
 
   // Form states
   const [formNombre, setFormNombre] = useState('');
   const [formPrecio, setFormPrecio] = useState('');
-  const [formTipo, setFormTipo] = useState('Pan');
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('get_products');
+      if (error) throw error;
+      setProductos(data || []);
+    } catch (err) {
+      console.error('Error al cargar productos:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const openCreateModal = () => {
     setEditingProducto(null);
     setFormNombre('');
     setFormPrecio('');
-    setFormTipo('Pan');
+    setModalError(null);
     setIsModalOpen(true);
   };
 
-  const openEditModal = (producto: Producto) => {
+  const openEditModal = (producto: Product) => {
     setEditingProducto(producto);
-    setFormNombre(producto.nombre);
-    setFormPrecio(formatCLP(producto.precio));
-    setFormTipo(producto.tipo);
+    setFormNombre(producto.name);
+    setFormPrecio(producto.value === 0 ? '$ 0' : formatCLP(producto.value));
+    setModalError(null);
     setIsModalOpen(true);
-  };
-
-  const handleDelete = (id: number) => {
-    if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-      setProductos(productos.filter((p) => p.id !== id));
-    }
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,39 +61,101 @@ export default function Productos() {
     setFormPrecio(raw.length > 0 ? formatCLP(numeric) : '');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const precioNumerico = parseCLP(formPrecio);
+    setModalError(null);
 
-    if (editingProducto) {
-      // Update
-      setProductos(
-        productos.map((p) =>
-          p.id === editingProducto.id
-            ? { ...p, nombre: formNombre, precio: precioNumerico, tipo: formTipo }
-            : p
-        )
-      );
-    } else {
-      // Create
-      const newProducto: Producto = {
-        id: Date.now(),
-        nombre: formNombre,
-        precio: precioNumerico,
-        tipo: formTipo,
-      };
-      setProductos([...productos, newProducto]);
+    if (!formNombre.trim()) {
+      setModalError('El nombre del producto es requerido.');
+      return;
     }
-    setIsModalOpen(false);
+
+    const precioNumerico = formPrecio === '' ? 0 : parseCLP(formPrecio);
+    setModalLoading(true);
+    try {
+      if (editingProducto) {
+        const { error } = await supabase.rpc('update_product', {
+          p_product_id: editingProducto.id,
+          p_name: formNombre.trim(),
+          p_value: precioNumerico
+        });
+        if (error) throw error;
+        alert('Producto actualizado exitosamente.');
+      } else {
+        const { error } = await supabase.rpc('create_product', {
+          p_name: formNombre.trim(),
+          p_value: precioNumerico
+        });
+        if (error) throw error;
+        alert('Producto creado exitosamente.');
+      }
+      setIsModalOpen(false);
+      fetchProducts();
+    } catch (err: any) {
+      console.error('Error al guardar producto:', err);
+      setModalError(err.message || 'Error al guardar el producto');
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const [togglingId, setTogglingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const handleToggleActive = async (productId: number) => {
+    setTogglingId(productId);
+    try {
+      const { error } = await supabase.rpc('toggle_product_active', { p_product_id: productId });
+      if (error) throw error;
+      setProductos(prev =>
+        prev.map(p => {
+          if (p.id === productId) {
+            const current = isProductActive(p);
+            return { ...p, is_active: !current, active: !current };
+          }
+          return p;
+        })
+      );
+    } catch (err: any) {
+      console.error('Error al cambiar disponibilidad:', err);
+      alert('Error al cambiar la disponibilidad del producto: ' + (err.message || 'Error desconocido'));
+      fetchProducts();
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: number) => {
+    if (!window.confirm('¿Está seguro de que desea eliminar este producto?')) {
+      return;
+    }
+    setDeletingId(productId);
+    try {
+      const { error } = await supabase.rpc('soft_delete_product', { p_product_id: productId });
+      if (error) throw error;
+      alert('Producto eliminado correctamente.');
+      fetchProducts();
+    } catch (err: any) {
+      console.error('Error al eliminar producto:', err);
+      alert('Error al eliminar producto: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const isProductActive = (p: Product): boolean => {
+    if (p.is_active !== undefined) return p.is_active;
+    if (p.active !== undefined) return p.active;
+    return true;
   };
 
   return (
-    <div className="p-8 pb-12">
+    <div className="p-6 md:p-8 pb-12 max-w-7xl mx-auto">
       {/* Header Section */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-6">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 className="text-xl font-headline font-bold text-on-surface">Gestión de Catálogo</h3>
-          <p className="text-sm text-outline mt-1">Administre los productos disponibles para pedidos y ventas.</p>
+          <h3 className="text-xl font-headline font-bold text-on-surface">Productos</h3>
+          <p className="text-sm text-outline mt-1">Catálogo general de productos y disponibilidad.</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -97,79 +166,91 @@ export default function Productos() {
         </button>
       </div>
 
-      {/* Products Table */}
-      <div className="bg-surface-container-low rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+      {/* Products Table Container */}
+      <div className="bg-surface-container-low rounded-xl overflow-hidden shadow-sm border border-outline-variant/10 relative min-h-[250px]">
+        {loading && (
+          <div className="absolute inset-0 bg-surface/50 flex items-center justify-center z-10">
+            <span className="material-symbols-outlined animate-spin text-3xl text-primary">autorenew</span>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-highest/50 border-b border-outline-variant/20">
-                <th className="px-6 py-5 text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold">Nombre del Producto</th>
-                <th className="px-6 py-5 text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold">Tipo / Categoría</th>
-                <th className="px-6 py-5 text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold text-right">Precio Base</th>
-                <th className="px-6 py-5 text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold text-right">Acciones</th>
+                <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold">Nombre</th>
+                <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold">Valor</th>
+                <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold text-center">Estado</th>
+                <th className="px-6 py-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
-              {productos.length === 0 ? (
+              {productos.length === 0 && !loading ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-10 text-center text-sm text-outline">
                     No hay productos en el catálogo. Use el botón "Nuevo Producto" para agregar uno.
                   </td>
                 </tr>
               ) : (
-                productos.map((producto) => (
-                  <tr key={producto.id} className="bg-surface hover:bg-primary-fixed/10 transition-colors">
-                    <td className="px-6 py-5 font-headline font-bold text-on-surface text-sm">
-                      {producto.nombre}
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${
-                        producto.tipo === 'Pan'
-                          ? 'bg-secondary-fixed text-on-secondary-container border-secondary/20'
-                          : producto.tipo === 'Bollería'
-                          ? 'bg-primary-fixed text-on-primary-fixed border-primary/20'
-                          : producto.tipo === 'Pastel'
-                          ? 'bg-tertiary text-white border-tertiary/20'
-                          : 'bg-surface-container-highest text-on-surface border-outline-variant/30'
-                      }`}>
-                        {producto.tipo}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 text-right font-headline font-bold text-[#703210] text-sm">
-                      {formatCLP(producto.precio)}
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <div className="flex justify-end gap-2">
+                productos.map((producto) => {
+                  const active = isProductActive(producto);
+                  return (
+                    <tr key={producto.id} className="bg-surface hover:bg-primary-fixed/10 transition-colors">
+                      <td className="px-6 py-4 font-headline font-bold text-on-surface text-sm">
+                        {producto.name}
+                      </td>
+                      <td className="px-6 py-4 font-headline font-bold text-primary text-sm">
+                        {formatCLP(producto.value)}
+                      </td>
+                      <td className="px-6 py-4 text-center">
                         <button
-                          onClick={() => openEditModal(producto)}
-                          className="p-1.5 rounded-lg text-stone-500 hover:text-primary hover:bg-primary-container/20 transition-colors flex items-center justify-center"
-                          title="Editar"
+                          type="button"
+                          disabled={togglingId === producto.id}
+                          onClick={() => handleToggleActive(producto.id)}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer select-none transition-all disabled:opacity-50 ${
+                            active
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
+                              : 'bg-stone-200 text-stone-600 border border-stone-300 hover:bg-stone-300'
+                          }`}
+                          title="Haga clic para cambiar la disponibilidad"
                         >
-                          <span className="material-symbols-outlined text-lg">edit</span>
+                          <span className={`w-2 h-2 rounded-full mr-1.5 ${active ? 'bg-emerald-500' : 'bg-stone-400'} ${togglingId === producto.id ? 'animate-ping' : ''}`}></span>
+                          {togglingId === producto.id ? 'Actualizando...' : (active ? 'Disponible' : 'No disponible')}
                         </button>
-                        <button
-                          onClick={() => handleDelete(producto.id)}
-                          className="p-1.5 rounded-lg text-stone-500 hover:text-error hover:bg-error-container/20 transition-colors flex items-center justify-center"
-                          title="Eliminar"
-                        >
-                          <span className="material-symbols-outlined text-lg">delete</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => openEditModal(producto)}
+                            className="p-1.5 rounded-lg text-stone-500 hover:text-primary hover:bg-primary-container/20 transition-colors flex items-center justify-center"
+                            title="Editar"
+                          >
+                            <span className="material-symbols-outlined text-lg">edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(producto.id)}
+                            disabled={deletingId === producto.id}
+                            className="p-1.5 rounded-lg text-stone-500 hover:text-error hover:bg-error-container/20 transition-colors flex items-center justify-center disabled:opacity-50"
+                            title="Eliminar"
+                          >
+                            <span className="material-symbols-outlined text-lg">delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
-
       {/* Create / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-[#1a1c1b]/20 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-headline font-extrabold text-primary">
+        <div className="fixed inset-0 bg-[#1a1c1b]/30 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-6 md:p-8 border border-outline-variant/30">
+            <div className="flex items-center justify-between mb-6 pb-3 border-b border-outline-variant/20">
+              <h2 className="text-xl font-headline font-extrabold text-primary">
                 {editingProducto ? 'Editar Producto' : 'Nuevo Producto'}
               </h2>
               <button
@@ -180,7 +261,7 @@ export default function Productos() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleFormSubmit} className="space-y-5">
               <div className="space-y-1">
                 <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">
                   Nombre del Producto *
@@ -189,57 +270,47 @@ export default function Productos() {
                   required
                   value={formNombre}
                   onChange={(e) => setFormNombre(e.target.value)}
-                  className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 px-3 transition-colors font-bold text-on-surface"
-                  placeholder="Ej. Hallulla Especial"
+                  className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2.5 px-3 transition-colors font-bold text-on-surface"
+                  placeholder="Ej. Marraqueta Especial"
                   type="text"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">
-                    Precio Base *
-                  </label>
-                  <input
-                    required
-                    value={formPrecio}
-                    onChange={handlePriceChange}
-                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 px-3 transition-colors font-bold text-[#703210]"
-                    placeholder="$ 0"
-                    type="text"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">
-                    Categoría *
-                  </label>
-                  <select
-                    value={formTipo}
-                    onChange={(e) => setFormTipo(e.target.value)}
-                    className="w-full bg-surface-container-highest border-b-2 border-transparent focus:border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-3 px-3 transition-colors font-bold text-on-surface"
-                  >
-                    <option value="Pan">Pan</option>
-                    <option value="Bollería">Bollería</option>
-                    <option value="Pastel">Pastel</option>
-                    <option value="Salado">Salado</option>
-                  </select>
-                </div>
+              <div className="space-y-1">
+                <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">
+                  Valor *
+                </label>
+                <input
+                  required
+                  value={formPrecio}
+                  onChange={handlePriceChange}
+                  className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2.5 px-3 transition-colors font-bold text-[#703210]"
+                  placeholder="$ 0"
+                  type="text"
+                />
               </div>
 
-              <div className="flex gap-4 border-t border-outline-variant/10 pt-6">
+              {modalError && (
+                <div className="bg-error-container text-on-error-container text-xs font-bold p-3 rounded-lg flex items-center">
+                  <span className="material-symbols-outlined mr-2 text-base">error</span>
+                  {modalError}
+                </div>
+              )}
+
+              <div className="flex gap-4 border-t border-outline-variant/20 pt-5">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3 text-sm font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors"
+                  className="flex-1 py-2.5 text-xs font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 text-sm font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity"
+                  disabled={modalLoading}
+                  className="flex-1 py-2.5 text-xs font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center"
                 >
-                  {editingProducto ? 'Guardar Cambios' : 'Añadir Producto'}
+                  {modalLoading ? 'Guardando...' : (editingProducto ? 'Guardar Cambios' : 'Crear Producto')}
                 </button>
               </div>
             </form>
