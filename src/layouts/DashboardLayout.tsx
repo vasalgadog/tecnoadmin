@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { formatCLP, parseCLP } from '../utils/formatters';
 
 const navItems = [
@@ -24,6 +25,7 @@ const getRouteTitle = (pathname: string) => {
 
 export default function DashboardLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   
   // Sidebar responsive state
@@ -113,7 +115,14 @@ export default function DashboardLayout() {
         </nav>
         
         <div className={`mt-auto pt-4 border-t border-outline-variant/10 px-2 xl:px-6 max-[499px]:px-6 ${isSidebarExpanded ? '!px-6' : ''}`}>
-          <button className={`flex items-center py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg justify-center w-full xl:justify-start xl:px-4 max-[499px]:justify-start max-[499px]:px-4 ${isSidebarExpanded ? '!w-full !justify-start !px-4' : ''}`} title="Cerrar Sesión">
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              navigate('/login');
+            }}
+            className={`flex items-center py-3 text-stone-600 hover:text-[#703210] hover:bg-[#f9f9f6] transition-colors duration-200 rounded-lg justify-center w-full xl:justify-start xl:px-4 max-[499px]:justify-start max-[499px]:px-4 ${isSidebarExpanded ? '!w-full !justify-start !px-4' : ''}`}
+            title="Cerrar Sesión"
+          >
             <span className={`material-symbols-outlined mr-0 xl:mr-3 max-[499px]:mr-3 ${isSidebarExpanded ? '!mr-3' : ''}`}>logout</span>
             <span className={`text-sm font-label uppercase tracking-wide hidden xl:block max-[499px]:block ${isSidebarExpanded ? '!block' : ''}`}>Cerrar Sesión</span>
           </button>
