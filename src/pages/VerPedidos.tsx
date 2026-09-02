@@ -1,16 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import DataTable, { type Column } from '../components/DataTable';
 import { supabase } from '../lib/supabase';
-import { formatCLP } from '../utils/formatters';
+import { formatCLP, formatChileanPhone } from '../utils/formatters';
 
 interface Order {
   id: number;
+  created_at?: string;
+  create_on?: string;
   client_name: string;
-  client_phone: string;
+  client_phone?: string;
   delivery_on: string;
   value: string | number;
   totally_paid: boolean;
-  // Optional field for rendering detail column
   detail?: any;
 }
 
@@ -29,17 +30,192 @@ export default function VerPedidos() {
   // Selected order detail handling
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Edit Order States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editPhone, setEditPhone] = useState('');
+  const [editProducts, setEditProducts] = useState<any[]>([]);
+  const [editProductSuggestions, setEditProductSuggestions] = useState<{ id: number | null, suggestions: any[] }>({ id: null, suggestions: [] });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const fetchOrderDetail = async (orderId: number) => {
     setDetailLoading(true);
     try {
       const { data: res, error } = await supabase.rpc('get_order_detail', { p_order_id: orderId });
       if (error) throw error;
-      setSelectedOrder(res);
+      setSelectedOrder({ ...res, id: orderId });
     } catch (err) {
       console.error('Error fetching order detail:', err);
     } finally {
       setDetailLoading(false);
+    }
+  };
+
+  const handlePrintOrder = async (orderId: number) => {
+    setPrintLoading(true);
+    try {
+      const { error } = await supabase.rpc('print_order', { p_order_id: orderId });
+      if (error) throw error;
+      alert('Pedido enviado a imprimir correctamente.');
+    } catch (err: any) {
+      console.error('Error al imprimir pedido:', err);
+      alert('Error al imprimir pedido: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setPrintLoading(false);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: number) => {
+    if (!window.confirm('¿Está seguro de que desea eliminar este pedido? Esta acción no se puede deshacer.')) {
+      return;
+    }
+    setDeleteLoading(true);
+    try {
+      const { error } = await supabase.rpc('soft_delete_order', { p_order_id: orderId });
+      if (error) throw error;
+      alert('Pedido eliminado correctamente.');
+      setSelectedOrder(null);
+      fetchOrders(page, search, orderDir);
+    } catch (err: any) {
+      console.error('Error al eliminar pedido:', err);
+      alert('Error al eliminar pedido: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Edit Order Logic
+  const openEditModal = () => {
+    if (!selectedOrder) return;
+    setEditPhone(selectedOrder.client?.phone || '');
+    setEditProducts(
+      selectedOrder.products && selectedOrder.products.length > 0
+        ? selectedOrder.products.map((p: any) => ({
+            id: p.id || Date.now() + Math.random(),
+            db_id: p.product_id || p.id,
+            name: p.name,
+            quantity: p.quantity,
+            price: Number(p.unit_value || 0) * Number(p.quantity),
+            basePrice: Number(p.unit_value || 0)
+          }))
+        : [{ id: Date.now(), db_id: null, name: '', quantity: 1, price: 0, basePrice: 0 }]
+    );
+    setEditError(null);
+    setIsEditModalOpen(true);
+  };
+
+  const getEditProductSuggestions = async (busqueda: string, rowId: number) => {
+    if (busqueda.length < 3) {
+      setEditProductSuggestions({ id: rowId, suggestions: [] });
+      return;
+    }
+    try {
+      const { data, error } = await supabase.rpc('get_product', { busqueda });
+      if (error) throw error;
+      if (data && data.length > 0) {
+        setEditProductSuggestions({ id: rowId, suggestions: data.map((p: any) => ({ id: p.id, name: p.name, value: p.value })) });
+      } else {
+        setEditProductSuggestions({ id: rowId, suggestions: [] });
+      }
+    } catch (err) {
+      console.error('Error buscando productos:', err);
+    }
+  };
+
+  const handleAddEditProduct = () => {
+    setEditProducts([...editProducts, { id: Date.now(), db_id: null, name: '', quantity: 1, price: 0, basePrice: 0 }]);
+  };
+
+  const handleUpdateEditProduct = (id: number, field: string, value: any) => {
+    setEditProducts(editProducts.map(p => {
+      if (p.id === id) {
+        const updated = { ...p, [field]: value };
+        if (field === 'name') {
+          getEditProductSuggestions(value, id);
+        }
+        return updated;
+      }
+      return p;
+    }));
+  };
+
+  const handleSelectEditProduct = (id: number, suggestion: any) => {
+    setEditProducts(editProducts.map(p => {
+      if (p.id === id) {
+        return {
+          ...p,
+          name: suggestion.name,
+          basePrice: suggestion.value,
+          price: suggestion.value * p.quantity,
+          db_id: suggestion.id
+        };
+      }
+      return p;
+    }));
+    setEditProductSuggestions({ id: null, suggestions: [] });
+  };
+
+  const handleUpdateEditQuantity = (id: number, delta: number) => {
+    setEditProducts(editProducts.map(p => {
+      if (p.id === id) {
+        const newQty = Math.max(1, p.quantity + delta);
+        return { ...p, quantity: newQty, price: (p.basePrice || 0) * newQty };
+      }
+      return p;
+    }));
+  };
+
+  const handleDeleteEditProduct = (id: number) => {
+    if (editProducts.length > 1) {
+      setEditProducts(editProducts.filter(p => p.id !== id));
+    } else {
+      setEditProducts([{ id: Date.now(), db_id: null, name: '', quantity: 1, price: 0, basePrice: 0 }]);
+    }
+  };
+
+  const handleSaveEditOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditError(null);
+
+    const validProducts = editProducts.filter(p => p.name.trim() !== '' && p.db_id);
+    if (validProducts.length === 0) {
+      setEditError('Debe seleccionar al menos un producto válido.');
+      return;
+    }
+
+    setEditLoading(true);
+    const payload = {
+      order_id: selectedOrder.id,
+      id: selectedOrder.id,
+      phone: editPhone,
+      client_phone: editPhone,
+      client: {
+        phone: editPhone
+      },
+      products: validProducts.map(p => ({
+        product_id: p.db_id,
+        quantity: p.quantity
+      }))
+    };
+
+    try {
+      const { error } = await supabase.rpc('edit_order', { p_payload: payload });
+      if (error) {
+        const fallback = await supabase.rpc('edit_order', { payload });
+        if (fallback.error) throw error;
+      }
+      alert('Pedido editado correctamente.');
+      setIsEditModalOpen(false);
+      fetchOrderDetail(selectedOrder.id);
+      fetchOrders(page, search, orderDir);
+    } catch (err: any) {
+      console.error('Error al editar pedido:', err);
+      setEditError(err.message || 'Error al guardar los cambios del pedido');
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -70,12 +246,10 @@ export default function VerPedidos() {
   }, [limit]);
 
   useEffect(() => {
-    if (search.length === 0 || search.length >= 3) {
-      const timer = setTimeout(() => {
-        fetchOrders(page, search, orderDir);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      fetchOrders(page, search, orderDir);
+    }, 300);
+    return () => clearTimeout(timer);
   }, [page, search, orderDir, fetchOrders]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,8 +264,17 @@ export default function VerPedidos() {
 
   const columns: Column<Order>[] = [
     { header: 'ID', accessor: 'id' },
+    {
+      header: 'Fecha creación',
+      accessor: 'created_at' as any,
+      render: (row) => {
+        const dateVal = row.created_at || row.create_on;
+        if (!dateVal) return '-';
+        const d = new Date(dateVal);
+        return isNaN(d.getTime()) ? '-' : `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      }
+    },
     { header: 'Nombre', accessor: 'client_name' },
-    { header: 'Teléfono', accessor: 'client_phone' },
     {
       header: (
         <button
@@ -107,7 +290,7 @@ export default function VerPedidos() {
       accessor: 'delivery_on',
       render: (row) => {
         const d = new Date(row.delivery_on);
-        return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        return isNaN(d.getTime()) ? '-' : `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       }
     },
     {
@@ -116,7 +299,7 @@ export default function VerPedidos() {
       render: (row) => formatCLP(Number(row.value))
     },
     {
-      header: 'Estado pago',
+      header: 'Estado Pago',
       accessor: 'totally_paid',
       render: (row) => (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${row.totally_paid ? 'bg-emerald-200 text-emerald-800' : 'bg-amber-200 text-amber-800'}`}>
@@ -245,29 +428,7 @@ export default function VerPedidos() {
           </div>
         ) : (
           <div>
-            {/* Bento Stats Summary */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <div className="bg-surface-container-low p-5 rounded-xl">
-                <p className="text-[10px] font-label uppercase text-outline mb-1">Total de Pedidos</p>
-                <h3 className="text-2xl font-headline font-extrabold text-primary">124</h3>
-                <div className="mt-1 text-[10px] text-secondary font-medium">+12% desde ayer</div>
-              </div>
-              <div className="bg-surface-container-low p-5 rounded-xl border-l-4 border-secondary-container">
-                <p className="text-[10px] font-label uppercase text-outline mb-1">Ingresos de Hoy</p>
-                <h3 className="text-2xl font-headline font-extrabold text-primary">$1,842.50</h3>
-                <div className="mt-1 text-[10px] text-outline opacity-0">spacer</div>
-              </div>
-              <div className="bg-surface-container-low p-5 rounded-xl">
-                <p className="text-[10px] font-label uppercase text-outline mb-1">Retiros Pendientes</p>
-                <h3 className="text-2xl font-headline font-extrabold text-tertiary">18</h3>
-                <div className="mt-1 text-[10px] text-outline opacity-0">spacer</div>
-              </div>
-              <div className="bg-surface-container-low p-5 rounded-xl">
-                <p className="text-[10px] font-label uppercase text-outline mb-1">Pago Completado</p>
-                <h3 className="text-2xl font-headline font-extrabold text-primary">94%</h3>
-                <div className="mt-1 text-[10px] text-outline opacity-0">spacer</div>
-              </div>
-            </div>
+
 
             {/* Search and Filters above Table */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
@@ -275,7 +436,7 @@ export default function VerPedidos() {
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">search</span>
                 <input
                   type="text"
-                  placeholder="Buscar por cliente..."
+                  placeholder="Buscar por ID o cliente..."
                   value={search}
                   onChange={handleSearchChange}
                   className="w-full bg-surface-container-highest rounded-lg border border-outline-variant/10 pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary text-on-surface"
@@ -329,6 +490,31 @@ export default function VerPedidos() {
                                   <li key={p.id}>{p.name} x {p.quantity} ({formatCLP(Number(p.unit_value))})</li>
                                 ))}
                               </ul>
+                            </div>
+                            <div className="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2">
+                              <button
+                                onClick={openEditModal}
+                                className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all"
+                              >
+                                <span className="material-symbols-outlined text-base">edit</span>
+                                Editar Pedido
+                              </button>
+                              <button
+                                onClick={() => handlePrintOrder(selectedOrder.id)}
+                                disabled={printLoading}
+                                className="w-full flex items-center justify-center gap-2 bg-[#fec178] text-[#784d0d] font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+                              >
+                                <span className="material-symbols-outlined text-base">print</span>
+                                {printLoading ? 'Imprimiendo...' : 'Imprimir'}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteOrder(selectedOrder.id)}
+                                disabled={deleteLoading}
+                                className="w-full flex items-center justify-center gap-2 bg-error-container text-on-error-container font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+                              >
+                                <span className="material-symbols-outlined text-base">delete</span>
+                                {deleteLoading ? 'Eliminando...' : 'Eliminar Pedido'}
+                              </button>
                             </div>
                           </div>
                         )}
@@ -384,10 +570,180 @@ export default function VerPedidos() {
                           ))}
                         </ul>
                       </div>
+                      <div className="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2">
+                        <button
+                          onClick={openEditModal}
+                          className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all"
+                        >
+                          <span className="material-symbols-outlined text-base">edit</span>
+                          Editar Pedido
+                        </button>
+                        <button
+                          onClick={() => handlePrintOrder(selectedOrder.id)}
+                          disabled={printLoading}
+                          className="w-full flex items-center justify-center gap-2 bg-[#fec178] text-[#784d0d] font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+                        >
+                          <span className="material-symbols-outlined text-base">print</span>
+                          {printLoading ? 'Imprimiendo...' : 'Imprimir'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOrder(selectedOrder.id)}
+                          disabled={deleteLoading}
+                          className="w-full flex items-center justify-center gap-2 bg-error-container text-on-error-container font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+                        >
+                          <span className="material-symbols-outlined text-base">delete</span>
+                          {deleteLoading ? 'Eliminando...' : 'Eliminar Pedido'}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Edit Order Modal */}
+        {isEditModalOpen && selectedOrder && (
+          <div className="fixed inset-0 bg-[#1a1c1b]/30 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+            <div className="bg-surface-container-lowest w-full max-w-xl rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-6 md:p-8 max-h-[90vh] overflow-y-auto border border-outline-variant/30">
+              <div className="flex items-center justify-between mb-6 pb-3 border-b border-outline-variant/20">
+                <div>
+                  <h2 className="text-xl font-headline font-extrabold text-primary">Editar Pedido #{selectedOrder.id}</h2>
+                  <p className="text-xs font-label text-outline mt-0.5">Cliente: <span className="font-bold text-on-surface">{selectedOrder.client?.name}</span></p>
+                </div>
+                <button className="material-symbols-outlined text-outline hover:text-on-surface" onClick={() => setIsEditModalOpen(false)}>close</button>
+              </div>
+
+              <form onSubmit={handleSaveEditOrder} className="space-y-5">
+                {/* Editable Client Phone */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Teléfono de Contacto *</label>
+                  <input
+                    required
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(formatChileanPhone(e.target.value))}
+                    className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2 px-3 text-on-surface font-semibold"
+                    placeholder="+56 9 XXXX XXXX"
+                    type="tel"
+                  />
+                </div>
+
+                {/* Editable Products Section */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[11px] font-label uppercase tracking-widest text-outline font-bold">Productos</h3>
+                    <button
+                      type="button"
+                      onClick={handleAddEditProduct}
+                      className="text-white flex items-center text-[10px] font-bold uppercase tracking-wider hover:bg-primary transition-colors bg-primary-container px-2.5 py-1 rounded-md shadow-sm"
+                    >
+                      <span className="material-symbols-outlined text-[14px] mr-1">add</span> Añadir
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {editProducts.map((p) => (
+                      <div key={p.id} className="flex flex-col md:grid md:grid-cols-12 gap-2 md:items-center bg-surface-container-low rounded-lg p-2.5 border border-outline-variant/20">
+                        {/* Product Search */}
+                        <div className="md:col-span-7 relative w-full">
+                          <input
+                            type="text"
+                            required
+                            className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-xs font-semibold py-1.5 px-2.5 h-8 focus:ring-1 focus:ring-primary text-on-surface"
+                            placeholder="Buscar producto..."
+                            value={p.name}
+                            onChange={(e) => handleUpdateEditProduct(p.id, 'name', e.target.value)}
+                            onFocus={() => { if (p.name.length >= 3) getEditProductSuggestions(p.name, p.id); }}
+                            onBlur={() => setTimeout(() => setEditProductSuggestions({ id: null, suggestions: [] }), 200)}
+                          />
+                          {editProductSuggestions.id === p.id && p.name.length >= 3 && (
+                            <div className="absolute z-50 w-full mt-1 bg-surface shadow-xl border border-outline-variant/50 rounded-md overflow-hidden max-h-40 overflow-y-auto left-0">
+                              {editProductSuggestions.suggestions.length > 0 ? (
+                                editProductSuggestions.suggestions.map((s, idx) => (
+                                  <div
+                                    key={idx}
+                                    onClick={() => handleSelectEditProduct(p.id, s)}
+                                    className="p-2.5 text-xs hover:bg-surface-variant cursor-pointer text-on-surface flex justify-between items-center border-b border-outline-variant/10 last:border-0"
+                                  >
+                                    <span className="font-semibold truncate pr-2">{s.name}</span>
+                                    <span className="text-primary font-bold whitespace-nowrap">{formatCLP(s.value)}</span>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="p-2.5 text-xs text-outline italic text-center">No se encontraron productos</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Quantity */}
+                        <div className="flex md:col-span-3 items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10 h-8 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateEditQuantity(p.id, -1)}
+                            className="w-7 h-full text-primary hover:bg-surface-variant transition-colors flex items-center justify-center"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">remove</span>
+                          </button>
+                          <input
+                            type="text"
+                            className="w-full bg-transparent text-center border-none text-xs font-bold p-0 focus:ring-0 text-on-surface"
+                            value={p.quantity}
+                            maxLength={3}
+                            onChange={(e) => {
+                              const newQuantity = parseInt(e.target.value.replace(/\D/g, '')) || 1;
+                              setEditProducts(editProducts.map(prod => prod.id === p.id ? { ...prod, quantity: newQuantity, price: (prod.basePrice || 0) * newQuantity } : prod));
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateEditQuantity(p.id, 1)}
+                            className="w-7 h-full text-primary hover:bg-surface-variant transition-colors flex items-center justify-center"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">add</span>
+                          </button>
+                        </div>
+
+                        {/* Delete row */}
+                        <div className="md:col-span-2 flex justify-end shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteEditProduct(p.id)}
+                            className="w-8 h-8 rounded-md text-outline hover:text-error hover:bg-error/10 transition-all flex items-center justify-center"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">delete</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {editError && (
+                  <div className="bg-error-container text-on-error-container text-xs font-bold p-3 rounded-lg flex items-center">
+                    <span className="material-symbols-outlined mr-2 text-base">error</span>
+                    {editError}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4 border-t border-outline-variant/20">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 py-2.5 text-xs font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editLoading}
+                    className="flex-1 py-2.5 text-xs font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center"
+                  >
+                    {editLoading ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -398,6 +754,5 @@ export default function VerPedidos() {
         </div>
       </div>
     </div>
-
   );
 }
