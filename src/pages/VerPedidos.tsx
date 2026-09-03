@@ -33,6 +33,13 @@ export default function VerPedidos() {
   const [printLoading, setPrintLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Report Modal States
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportFechaInicio, setReportFechaInicio] = useState('');
+  const [reportFechaFin, setReportFechaFin] = useState('');
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+
   // Edit Order States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editPhone, setEditPhone] = useState('');
@@ -84,6 +91,34 @@ export default function VerPedidos() {
       alert('Error al eliminar pedido: ' + (err.message || 'Error desconocido'));
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  const handleGenerateReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReportError(null);
+
+    if (!reportFechaInicio) {
+      setReportError('La fecha de inicio es requerida.');
+      return;
+    }
+
+    setReportLoading(true);
+    try {
+      const { error } = await supabase.rpc('generate_order_report', {
+        p_fecha1: reportFechaInicio,
+        p_fecha2: reportFechaFin || null
+      });
+      if (error) throw error;
+      alert('Trabajo de impresión creado correctamente.');
+      setIsReportModalOpen(false);
+      setReportFechaInicio('');
+      setReportFechaFin('');
+    } catch (err: any) {
+      console.error('Error al generar reporte:', err);
+      setReportError(err.message || 'Error al generar el reporte de impresión');
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -371,7 +406,10 @@ export default function VerPedidos() {
               <span className="material-symbols-outlined text-[18px]">filter_list</span>
               Filtros
             </button>
-            <button className="bg-[#fec178] text-[#784d0d] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+            <button 
+              onClick={() => setIsReportModalOpen(true)}
+              className="bg-[#fec178] text-[#784d0d] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-sm"
+            >
               <span className="material-symbols-outlined text-[18px]">print</span>
               Imprimir Reporte
             </button>
@@ -741,6 +779,83 @@ export default function VerPedidos() {
                     className="flex-1 py-2.5 text-xs font-bold bg-primary text-white rounded-lg shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center"
                   >
                     {editLoading ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Report Modal */}
+        {isReportModalOpen && (
+          <div className="fixed inset-0 bg-[#1a1c1b]/30 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+            <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-[0_24px_48px_rgba(115,53,18,0.12)] p-6 md:p-8 border border-outline-variant/30">
+              <div className="flex items-center justify-between mb-6 pb-3 border-b border-outline-variant/20">
+                <div>
+                  <h2 className="text-xl font-headline font-extrabold text-primary">Reporte de Pedidos</h2>
+                  <p className="text-xs font-label text-outline mt-0.5">Selecciona el rango de fechas para imprimir</p>
+                </div>
+                <button 
+                  className="material-symbols-outlined text-outline hover:text-on-surface" 
+                  onClick={() => { setIsReportModalOpen(false); setReportError(null); }}
+                >
+                  close
+                </button>
+              </div>
+
+              <form onSubmit={handleGenerateReport} className="space-y-5">
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Fecha Inicio *</label>
+                  <input
+                    required
+                    type="date"
+                    value={reportFechaInicio}
+                    onChange={(e) => setReportFechaInicio(e.target.value)}
+                    className="w-full bg-surface-container-highest border-b-2 border-primary border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2 px-3 text-on-surface font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-label uppercase tracking-wider text-outline px-1 font-bold">Fecha Fin (opcional)</label>
+                  <input
+                    type="date"
+                    value={reportFechaFin}
+                    onChange={(e) => setReportFechaFin(e.target.value)}
+                    className="w-full bg-surface-container-highest border-b-2 border-outline-variant/30 border-t-0 border-x-0 rounded-t-sm focus:ring-0 text-sm py-2 px-3 text-on-surface font-semibold"
+                  />
+                </div>
+
+                {reportError && (
+                  <div className="bg-error-container text-on-error-container text-xs font-bold p-3 rounded-lg flex items-center">
+                    <span className="material-symbols-outlined mr-2 text-base">error</span>
+                    {reportError}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4 border-t border-outline-variant/20">
+                  <button
+                    type="button"
+                    onClick={() => { setIsReportModalOpen(false); setReportError(null); }}
+                    className="flex-1 py-2.5 text-xs font-bold text-outline hover:bg-surface-container-low rounded-lg transition-colors"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={reportLoading}
+                    className="flex-1 py-2.5 text-xs font-bold bg-[#fec178] text-[#784d0d] rounded-lg shadow-sm hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center"
+                  >
+                    {reportLoading ? (
+                      <>
+                        <span className="material-symbols-outlined animate-spin text-base mr-1.5">autorenew</span>
+                        Generando...
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-base mr-1.5">print</span>
+                        Imprimir
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
