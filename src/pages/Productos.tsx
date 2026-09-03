@@ -74,12 +74,36 @@ export default function Productos() {
     setModalLoading(true);
     try {
       if (editingProducto) {
-        const { error } = await supabase.rpc('update_product', {
+        const { data: resData, error } = await supabase.rpc('update_product', {
           p_product_id: editingProducto.id,
           p_name: formNombre.trim(),
           p_value: precioNumerico
         });
         if (error) throw error;
+
+        // Extraer el nuevo registro recibido
+        const newRecord = Array.isArray(resData)
+          ? resData[0]
+          : (typeof resData === 'object' && resData !== null ? resData : null);
+
+        const newId = newRecord?.id ?? (typeof resData === 'number' ? resData : editingProducto.id);
+        const newName = newRecord?.name ?? formNombre.trim();
+        const newValue = newRecord?.value !== undefined ? Number(newRecord.value) : precioNumerico;
+        const newIsActive = newRecord?.is_active ?? newRecord?.active ?? isProductActive(editingProducto);
+
+        const updatedProduct: Product = {
+          id: newId,
+          name: newName,
+          value: newValue,
+          is_active: newIsActive,
+          active: newIsActive
+        };
+
+        // Modificar la fila donde estaba el producto anterior con los nuevos datos (incluido el nuevo ID)
+        setProductos(prev =>
+          prev.map(p => (p.id === editingProducto.id ? updatedProduct : p))
+        );
+
         alert('Producto actualizado exitosamente.');
       } else {
         const { error } = await supabase.rpc('create_product', {
@@ -88,9 +112,9 @@ export default function Productos() {
         });
         if (error) throw error;
         alert('Producto creado exitosamente.');
+        fetchProducts();
       }
       setIsModalOpen(false);
-      fetchProducts();
     } catch (err: any) {
       console.error('Error al guardar producto:', err);
       setModalError(err.message || 'Error al guardar el producto');
