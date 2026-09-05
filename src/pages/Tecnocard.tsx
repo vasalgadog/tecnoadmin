@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { formatDateTime, formatDateOnly } from '../utils/formatters';
 
 interface Tarjeta {
   id: string;
@@ -23,11 +24,11 @@ const MAX_VISITAS = 50;
 
 const formatFecha = (d: Date | null) => {
   if (!d) return '—';
-  return d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return formatDateTime(d.toISOString());
 };
 
 const formatVencimiento = (d: Date) =>
-  d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
+  formatDateOnly(d.toISOString());
 
 /** Verifica y formatea un RUT chileno. Retorna el RUT formateado (XX.XXX.XXX-D) o null si es inválido. */
 const validarYFormatearRut = (input: string): string | null => {

@@ -62,3 +62,37 @@ export const formatChileanPhone = (value: string): string => {
 
   return formatted;
 };
+
+const TIMEZONE = 'America/Santiago';
+
+/**
+ * Formats an ISO date string to Chilean locale with fixed timezone.
+ * Example: "2026-09-05T14:00:00.000Z" -> "05/09/2026 10:00"
+ */
+export const formatDateTime = (isoString: string): string => {
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return '-';
+  return new Intl.DateTimeFormat('es-CL', {
+    timeZone: TIMEZONE,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
+};
+
+/**
+ * Formats an ISO date string to date only (no time) with fixed timezone.
+ */
+export const formatDateOnly = (isoString: string): string => {
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return '-';
+  return new Intl.DateTimeFormat('es-CL', {
+    timeZone: TIMEZONE,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+};

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { formatCLP } from '../utils/formatters';
+import { formatCLP, formatDateTime } from '../utils/formatters';
 
 interface OrderProduct {
   name: string;
@@ -175,7 +175,7 @@ export default function DeliverOrderModal({ isOpen, onClose, onDelivered }: Deli
               {foundOrder.delivery_on && (
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[14px] text-outline">calendar_today</span>
-                  <span className="text-[10px] text-outline">{new Date(foundOrder.delivery_on).toLocaleString()}</span>
+                  <span className="text-[10px] text-outline">{formatDateTime(foundOrder.delivery_on)}</span>
                 </div>
               )}
               <div className="flex flex-wrap gap-1.5">

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import DataTable, { type Column } from '../components/DataTable';
 import { supabase } from '../lib/supabase';
-import { formatCLP, formatChileanPhone } from '../utils/formatters';
+import { formatCLP, formatDateTime, formatChileanPhone } from '../utils/formatters';
 
 interface Order {
   id: number;
@@ -377,8 +377,7 @@ export default function VerPedidos() {
       render: (row) => {
         const dateVal = row.created_at || row.create_on;
         if (!dateVal) return '-';
-        const d = new Date(dateVal);
-        return isNaN(d.getTime()) ? '-' : `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        return formatDateTime(dateVal);
       }
     },
     { header: 'Nombre', accessor: 'client_name' },
@@ -396,8 +395,7 @@ export default function VerPedidos() {
       ),
       accessor: 'delivery_on',
       render: (row) => {
-        const d = new Date(row.delivery_on);
-        return isNaN(d.getTime()) ? '-' : `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        return formatDateTime(row.delivery_on);
       }
     },
     {
@@ -672,7 +670,7 @@ export default function VerPedidos() {
                       <h3 className="text-xl font-bold mb-3">Detalle del Pedido</h3>
                       <p><strong>Cliente:</strong> {selectedOrder.client.name}</p>
                       <p><strong>Teléfono:</strong> {selectedOrder.client.phone}</p>
-                      <p><strong>Entrega:</strong> {new Date(selectedOrder.delivery_on).toLocaleString()}</p>
+                      <p><strong>Entrega:</strong> {formatDateTime(selectedOrder.delivery_on)}</p>
                       <p><strong>Valor:</strong> {Number(selectedOrder.value) === 0 ? 'Pendiente' : formatCLP(Number(selectedOrder.value))}</p>
                       <p>
                         <strong>Estado Pago:</strong>{' '}
@@ -769,7 +767,7 @@ export default function VerPedidos() {
                             <span className="material-symbols-outlined text-primary text-xl">calendar_today</span>
                             <div>
                               <p className="text-[10px] font-label uppercase text-outline">Entrega</p>
-                              <p className="text-sm font-bold text-on-surface">{new Date(selectedOrder.delivery_on).toLocaleString()}</p>
+                              <p className="text-sm font-bold text-on-surface">{formatDateTime(selectedOrder.delivery_on)}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
