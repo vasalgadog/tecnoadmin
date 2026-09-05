@@ -333,10 +333,6 @@ export default function VerPedidos() {
   }, [limit, filterPendientes, filterEntregados, filterEliminados]);
 
   useEffect(() => {
-    setPage(1);
-  }, [filterPendientes, filterEntregados, filterEliminados, search, orderDir, orderField]);
-
-  useEffect(() => {
     const timer = setTimeout(() => {
       fetchOrders(page, search, orderDir, orderField);
     }, 300);
