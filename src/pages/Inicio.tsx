@@ -12,7 +12,7 @@ export default function Inicio() {
              <OrderRegistration />
           </section>
 
-          {/* Panel 2: Bread Registration (Right - Oculto según Paso 1.3) */}
+          {/* Panel 2: Bread Registration (Right - Oculto segun Paso 1.3) */}
           <section style={{ display: 'none' }} className="min-[700px]:col-span-5 space-y-6 flex-1">
              <BreadRegistration />
           </section>

@@ -12,7 +12,19 @@ interface Order {
   delivery_on: string;
   value: string | number;
   totally_paid: boolean;
+  status?: number;
+  paid_amount?: number;
   detail?: any;
+}
+
+interface OrdersResponse {
+  meta: {
+    page: number;
+    limit: number;
+    total_count: number;
+    total_pages: number;
+  };
+  data: Order[];
 }
 
 export default function VerPedidos() {
@@ -24,14 +36,23 @@ export default function VerPedidos() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [search, setSearch] = useState('');
-  const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('asc');
+  const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('desc');
+  const [orderField, setOrderField] = useState<'delivery_on' | 'created_at'>('delivery_on');
   const [hasMore, setHasMore] = useState(true);
+
+  // Filter States
+  const [filterPendientes, setFilterPendientes] = useState(true);
+  const [filterEntregados, setFilterEntregados] = useState(false);
+  const [filterEliminados, setFilterEliminados] = useState(false);
 
   // Selected order detail handling
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Report Modal States
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -85,7 +106,7 @@ export default function VerPedidos() {
       if (error) throw error;
       alert('Pedido eliminado correctamente.');
       setSelectedOrder(null);
-      fetchOrders(page, search, orderDir);
+      fetchOrders(page, search, orderDir, orderField);
     } catch (err: any) {
       console.error('Error al eliminar pedido:', err);
       alert('Error al eliminar pedido: ' + (err.message || 'Error desconocido'));
@@ -129,14 +150,15 @@ export default function VerPedidos() {
     setEditProducts(
       selectedOrder.products && selectedOrder.products.length > 0
         ? selectedOrder.products.map((p: any) => ({
-            id: p.id || Date.now() + Math.random(),
-            db_id: p.product_id || p.id,
-            name: p.name,
-            quantity: p.quantity,
-            price: Number(p.unit_value || 0) * Number(p.quantity),
-            basePrice: Number(p.unit_value || 0)
-          }))
-        : [{ id: Date.now(), db_id: null, name: '', quantity: 1, price: 0, basePrice: 0 }]
+          id: p.id || Date.now() + Math.random(),
+          db_id: p.product_id || p.id,
+          name: p.name,
+          quantity: p.quantity,
+          product_value: Number(p.unit_value || 0),
+          price: Number(p.unit_value || 0) * Number(p.quantity),
+          basePrice: Number(p.unit_value || 0)
+        }))
+        : [{ id: Date.now(), db_id: null, name: '', quantity: 1, product_value: 0, price: 0, basePrice: 0 }]
     );
     setEditError(null);
     setIsEditModalOpen(true);
@@ -161,7 +183,7 @@ export default function VerPedidos() {
   };
 
   const handleAddEditProduct = () => {
-    setEditProducts([...editProducts, { id: Date.now(), db_id: null, name: '', quantity: 1, price: 0, basePrice: 0 }]);
+    setEditProducts([...editProducts, { id: Date.now(), db_id: null, name: '', quantity: 1, product_value: 0, price: 0, basePrice: 0 }]);
   };
 
   const handleUpdateEditProduct = (id: number, field: string, value: any) => {
@@ -184,6 +206,7 @@ export default function VerPedidos() {
           ...p,
           name: suggestion.name,
           basePrice: suggestion.value,
+          product_value: suggestion.value,
           price: suggestion.value * p.quantity,
           db_id: suggestion.id
         };
@@ -197,7 +220,7 @@ export default function VerPedidos() {
     setEditProducts(editProducts.map(p => {
       if (p.id === id) {
         const newQty = Math.max(1, p.quantity + delta);
-        return { ...p, quantity: newQty, price: (p.basePrice || 0) * newQty };
+        return { ...p, quantity: newQty, price: (p.product_value || 0) * newQty };
       }
       return p;
     }));
@@ -207,7 +230,7 @@ export default function VerPedidos() {
     if (editProducts.length > 1) {
       setEditProducts(editProducts.filter(p => p.id !== id));
     } else {
-      setEditProducts([{ id: Date.now(), db_id: null, name: '', quantity: 1, price: 0, basePrice: 0 }]);
+      setEditProducts([{ id: Date.now(), db_id: null, name: '', quantity: 1, product_value: 0, price: 0, basePrice: 0 }]);
     }
   };
 
@@ -223,29 +246,29 @@ export default function VerPedidos() {
 
     setEditLoading(true);
     const payload = {
-      order_id: selectedOrder.id,
-      id: selectedOrder.id,
       phone: editPhone,
       client_phone: editPhone,
       client: {
         phone: editPhone
       },
+      value: editProducts.reduce((acc, p) => acc + (p.price || 0), 0),
       products: validProducts.map(p => ({
         product_id: p.db_id,
-        quantity: p.quantity
+        quantity: p.quantity,
+        product_value: p.product_value
       }))
     };
 
     try {
-      const { error } = await supabase.rpc('edit_order', { p_payload: payload });
-      if (error) {
-        const fallback = await supabase.rpc('edit_order', { payload });
-        if (fallback.error) throw error;
-      }
+      const { error } = await supabase.rpc('edit_order', {
+        p_order_id: selectedOrder.id,
+        p_payload: payload
+      });
+      if (error) throw error;
       alert('Pedido editado correctamente.');
       setIsEditModalOpen(false);
       fetchOrderDetail(selectedOrder.id);
-      fetchOrders(page, search, orderDir);
+      fetchOrders(page, search, orderDir, orderField);
     } catch (err: any) {
       console.error('Error al editar pedido:', err);
       setEditError(err.message || 'Error al guardar los cambios del pedido');
@@ -257,9 +280,13 @@ export default function VerPedidos() {
   const handleRowClick = (row: Order) => {
     // Load detailed info for the clicked order
     fetchOrderDetail(row.id);
+    // Open mobile detail panel
+    if (window.innerWidth < 768) {
+      setIsMobileDetailOpen(true);
+    }
   };
 
-  const fetchOrders = useCallback(async (currentPage: number, searchTerm: string, direction: 'asc' | 'desc') => {
+  const fetchOrders = useCallback(async (currentPage: number, searchTerm: string, direction: 'desc' | 'asc', field: 'delivery_on' | 'created_at') => {
     setLoading(true);
     try {
       const { data: res, error } = await supabase.rpc('get_orders_paginated', {
@@ -271,21 +298,46 @@ export default function VerPedidos() {
 
       if (error) throw error;
 
-      setData(res || []);
-      setHasMore((res || []).length === limit);
+      const response: OrdersResponse = res;
+      let filteredData = response.data || [];
+
+      // Apply client-side filters based on status
+      // status: 0 = eliminado, 1 = pendiente, 2 = entregado
+      const activeFilters: number[] = [];
+      if (filterPendientes) activeFilters.push(1);
+      if (filterEntregados) activeFilters.push(2);
+      if (filterEliminados) activeFilters.push(0);
+
+      if (activeFilters.length > 0) {
+        filteredData = filteredData.filter((order: Order) => {
+          return activeFilters.includes(order.status ?? 0);
+        });
+      }
+
+      // Client-side sort by the selected field
+      filteredData.sort((a: Order, b: Order) => {
+        const dateA = new Date(a[field] || a.created_at || a.create_on || 0).getTime();
+        const dateB = new Date(b[field] || b.created_at || b.create_on || 0).getTime();
+        return direction === 'desc' ? dateB - dateA : dateA - dateB;
+      });
+
+      setData(filteredData);
+      setHasMore(currentPage < (response.meta?.total_pages || 1));
+      setTotalCount(response.meta?.total_count || 0);
+      setTotalPages(response.meta?.total_pages || 1);
     } catch (err) {
       console.error("Error fetching orders:", err);
     } finally {
       setLoading(false);
     }
-  }, [limit]);
+  }, [limit, filterPendientes, filterEntregados, filterEliminados]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchOrders(page, search, orderDir);
+      fetchOrders(page, search, orderDir, orderField);
     }, 300);
     return () => clearTimeout(timer);
-  }, [page, search, orderDir, fetchOrders]);
+  }, [page, search, orderDir, orderField, fetchOrders, filterPendientes, filterEntregados, filterEliminados]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -293,14 +345,34 @@ export default function VerPedidos() {
   };
 
   const toggleOrderDir = () => {
-    setOrderDir(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    setOrderDir(prev => (prev === 'desc' ? 'asc' : 'desc'));
     setPage(1);
+  };
+
+  const toggleOrderField = (field: 'delivery_on' | 'created_at') => {
+    if (orderField === field) {
+      toggleOrderDir();
+    } else {
+      setOrderField(field);
+      setOrderDir('desc');
+      setPage(1);
+    }
   };
 
   const columns: Column<Order>[] = [
     { header: 'ID', accessor: 'id' },
     {
-      header: 'Fecha creación',
+      header: (
+        <button
+          onClick={() => toggleOrderField('created_at')}
+          className="flex items-center gap-1 text-sm font-medium text-primary"
+        >
+          Fecha creación
+          <span className="material-symbols-outlined text-xs">
+            {orderField === 'created_at' ? (orderDir === 'desc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
+          </span>
+        </button>
+      ),
       accessor: 'created_at' as any,
       render: (row) => {
         const dateVal = row.created_at || row.create_on;
@@ -313,12 +385,12 @@ export default function VerPedidos() {
     {
       header: (
         <button
-          onClick={toggleOrderDir}
+          onClick={() => toggleOrderField('delivery_on')}
           className="flex items-center gap-1 text-sm font-medium text-primary"
         >
           Fecha entrega
           <span className="material-symbols-outlined text-xs">
-            {orderDir === 'asc' ? 'arrow_upward' : 'arrow_downward'}
+            {orderField === 'delivery_on' ? (orderDir === 'desc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more'}
           </span>
         </button>
       ),
@@ -337,10 +409,29 @@ export default function VerPedidos() {
       header: 'Estado Pago',
       accessor: 'totally_paid',
       render: (row) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${row.totally_paid ? 'bg-emerald-200 text-emerald-800' : 'bg-amber-200 text-amber-800'}`}>
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${row.totally_paid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
           {row.totally_paid ? 'Pagado' : 'Abonado'}
         </span>
       )
+    },
+    {
+      header: 'Estado Entrega',
+      accessor: 'status',
+      render: (row) => {
+        // status: 0 = eliminado, 1 = pendiente, 2 = entregado
+        const status = row.status ?? 1;
+        const config: Record<number, { bg: string; text: string; label: string }> = {
+          0: { bg: 'bg-red-100', text: 'text-red-800', label: 'Eliminado' },
+          1: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Pendiente' },
+          2: { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Entregado' }
+        };
+        const c = config[status] || config[1];
+        return (
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${c.bg} ${c.text}`}>
+            {c.label}
+          </span>
+        );
+      }
     }
   ];
 
@@ -406,7 +497,7 @@ export default function VerPedidos() {
               <span className="material-symbols-outlined text-[18px]">filter_list</span>
               Filtros
             </button>
-            <button 
+            <button
               onClick={() => setIsReportModalOpen(true)}
               className="bg-[#fec178] text-[#784d0d] px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-sm"
             >
@@ -468,9 +559,9 @@ export default function VerPedidos() {
           <div>
 
 
-            {/* Search and Filters above Table */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-              <div className="relative w-full md:w-1/3">
+            {/* Search, Filters and Order above Table */}
+            <div className="flex flex-col md:flex-row items-center gap-3 mb-4">
+              <div className="relative w-full md:w-auto md:flex-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">search</span>
                 <input
                   type="text"
@@ -481,15 +572,51 @@ export default function VerPedidos() {
                 />
               </div>
 
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => { setFilterPendientes(!filterPendientes); setPage(1); }}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                    filterPendientes
+                      ? 'bg-amber-500 text-white shadow-sm'
+                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[14px] mr-1.5">schedule</span>
+                  Pendientes
+                </button>
+                <button
+                  onClick={() => { setFilterEntregados(!filterEntregados); setPage(1); }}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                    filterEntregados
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[14px] mr-1.5">check_circle</span>
+                  Entregados
+                </button>
+                <button
+                  onClick={() => { setFilterEliminados(!filterEliminados); setPage(1); }}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                    filterEliminados
+                      ? 'bg-red-500 text-white shadow-sm'
+                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[14px] mr-1.5">delete</span>
+                  Eliminados
+                </button>
+              </div>
+
               <div className="flex items-center space-x-2">
                 <label className="text-xs font-label uppercase text-outline">Ordenar Fecha:</label>
                 <select
                   value={orderDir}
-                  onChange={(e) => { setOrderDir(e.target.value as 'asc' | 'desc'); setPage(1); }}
+                  onChange={(e) => { setOrderDir(e.target.value as 'desc' | 'asc'); setPage(1); }}
                   className="bg-surface-container-highest rounded-lg border border-outline-variant/10 px-3 py-1 text-sm focus:ring-1 focus:ring-primary"
                 >
-                  <option value="asc">Ascendente</option>
                   <option value="desc">Descendente</option>
+                  <option value="asc">Ascendente</option>
                 </select>
               </div>
             </div>
@@ -505,65 +632,14 @@ export default function VerPedidos() {
                   columns={columns}
                   data={data}
                   onRowClick={handleRowClick}
-                  expandedRowRender={(row) => {
-                    // Show inline details only on mobile (md:hidden)
-                    if (!selectedOrder || selectedOrder.id !== row.id) return null;
-                    return (
-                      <div className="md:hidden p-4 bg-surface-low">
-                        {detailLoading ? (
-                          <span className="material-symbols-outlined animate-spin text-xl">autorenew</span>
-                        ) : (
-                          <div>
-                            <h3 className="text-lg font-bold mb-2">Detalle del Pedido</h3>
-                            <p><strong>Cliente:</strong> {selectedOrder.client.name}</p>
-                            <p><strong>Teléfono:</strong> {selectedOrder.client.phone}</p>
-                            <p><strong>Entrega:</strong> {new Date(selectedOrder.delivery_on).toLocaleString()}</p>
-                            <p><strong>Valor:</strong> {formatCLP(Number(selectedOrder.value))}</p>
-                            <p><strong>Estado:</strong> {selectedOrder.totally_paid ? 'Pagado' : 'Abonado'}</p>
-                            {selectedOrder.comment && <p><strong>Comentario:</strong> {selectedOrder.comment}</p>}
-                            <div className="mt-2">
-                              <h4 className="font-semibold">Productos:</h4>
-                              <ul className="list-disc list-inside">
-                                {selectedOrder.products.map((p: any) => (
-                                  <li key={p.id}>{p.name} x {p.quantity} ({formatCLP(Number(p.unit_value))})</li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div className="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2">
-                              <button
-                                onClick={openEditModal}
-                                className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all"
-                              >
-                                <span className="material-symbols-outlined text-base">edit</span>
-                                Editar Pedido
-                              </button>
-                              <button
-                                onClick={() => handlePrintOrder(selectedOrder.id)}
-                                disabled={printLoading}
-                                className="w-full flex items-center justify-center gap-2 bg-[#fec178] text-[#784d0d] font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
-                              >
-                                <span className="material-symbols-outlined text-base">print</span>
-                                {printLoading ? 'Imprimiendo...' : 'Imprimir'}
-                              </button>
-                              <button
-                                onClick={() => handleDeleteOrder(selectedOrder.id)}
-                                disabled={deleteLoading}
-                                className="w-full flex items-center justify-center gap-2 bg-error-container text-on-error-container font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
-                              >
-                                <span className="material-symbols-outlined text-base">delete</span>
-                                {deleteLoading ? 'Eliminando...' : 'Eliminar Pedido'}
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
+                  expandedRowRender={() => {
+                    return null;
                   }}
                 />
 
                 {/* Pagination */}
                 <div className="px-6 py-4 flex items-center justify-between border-t border-outline-variant/10 bg-surface-container-low">
-                  <p className="text-xs text-outline font-label">Página {page}</p>
+                  <p className="text-xs text-outline font-label">Página {page} de {totalPages} — {totalCount} pedidos</p>
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -597,14 +673,24 @@ export default function VerPedidos() {
                       <p><strong>Cliente:</strong> {selectedOrder.client.name}</p>
                       <p><strong>Teléfono:</strong> {selectedOrder.client.phone}</p>
                       <p><strong>Entrega:</strong> {new Date(selectedOrder.delivery_on).toLocaleString()}</p>
-                      <p><strong>Valor:</strong> {formatCLP(Number(selectedOrder.value))}</p>
-                      <p><strong>Estado:</strong> {selectedOrder.totally_paid ? 'Pagado' : 'Abonado'}</p>
+                      <p><strong>Valor:</strong> {Number(selectedOrder.value) === 0 ? 'Pendiente' : formatCLP(Number(selectedOrder.value))}</p>
+                      <p>
+                        <strong>Estado Pago:</strong>{' '}
+                        {selectedOrder.totally_paid ? 'Pagado' : `Abonado (${formatCLP(Number(selectedOrder.mount_paid || 0))})`}
+                      </p>
+                      <p>
+                        <strong>Estado Entrega:</strong>{' '}
+                        {(selectedOrder.status ?? 1) === 0 ? 'Eliminado' : (selectedOrder.status ?? 1) === 2 ? 'Entregado' : 'Pendiente'}
+                      </p>
                       {selectedOrder.comment && <p><strong>Comentario:</strong> {selectedOrder.comment}</p>}
                       <div className="mt-2">
                         <h4 className="font-semibold">Productos:</h4>
                         <ul className="list-disc list-inside">
                           {selectedOrder.products.map((p: any) => (
-                            <li key={p.id}>{p.name} x {p.quantity} ({formatCLP(Number(p.unit_value))})</li>
+                            <li key={p.id} className={p.removed ? 'text-gray-400 line-through' : ''}>
+                              {p.name} x {p.quantity} ({formatCLP(Number(p.unit_value))})
+                              {p.removed && <span className="text-[10px] text-red-400 ml-1">(Eliminado)</span>}
+                            </li>
                           ))}
                         </ul>
                       </div>
@@ -638,6 +724,145 @@ export default function VerPedidos() {
                 </div>
               )}
             </div>
+
+            {/* Mobile Bottom Sheet Detail */}
+            {selectedOrder && isMobileDetailOpen && (
+              <div className="md:hidden fixed inset-0 z-50">
+                <div className="absolute inset-0 bg-black/40" onClick={() => { setIsMobileDetailOpen(false); setSelectedOrder(null); }} />
+                <div className="absolute bottom-0 left-0 right-0 bg-surface-container-lowest rounded-t-2xl max-h-[85vh] overflow-y-auto shadow-[0_-8px_32px_rgba(0,0,0,0.15)]">
+                  <div className="sticky top-0 bg-surface-container-lowest px-5 pt-4 pb-2 border-b border-outline-variant/20 z-10">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="w-8" />
+                      <div className="w-10 h-1 bg-outline-variant/40 rounded-full" />
+                      <button
+                        onClick={() => { setIsMobileDetailOpen(false); setSelectedOrder(null); }}
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-lg text-outline">close</span>
+                      </button>
+                    </div>
+                    <h3 className="text-lg font-headline font-bold text-on-surface text-center">Detalle del Pedido</h3>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    {detailLoading ? (
+                      <div className="flex justify-center py-8">
+                        <span className="material-symbols-outlined animate-spin text-3xl text-primary">autorenew</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-primary text-xl">person</span>
+                            <div>
+                              <p className="text-[10px] font-label uppercase text-outline">Cliente</p>
+                              <p className="text-sm font-bold text-on-surface">{selectedOrder.client?.name}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-primary text-xl">phone</span>
+                            <div>
+                              <p className="text-[10px] font-label uppercase text-outline">Telefono</p>
+                              <p className="text-sm font-bold text-on-surface">{selectedOrder.client?.phone}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-primary text-xl">calendar_today</span>
+                            <div>
+                              <p className="text-[10px] font-label uppercase text-outline">Entrega</p>
+                              <p className="text-sm font-bold text-on-surface">{new Date(selectedOrder.delivery_on).toLocaleString()}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-primary text-xl">payments</span>
+                            <div>
+                              <p className="text-[10px] font-label uppercase text-outline">Valor</p>
+                              <p className="text-sm font-bold text-on-surface">
+                                {Number(selectedOrder.value) === 0 ? 'Pendiente' : formatCLP(Number(selectedOrder.value))}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`material-symbols-outlined text-xl ${selectedOrder.totally_paid ? 'text-emerald-500' : 'text-amber-500'}`}>
+                              {selectedOrder.totally_paid ? 'check_circle' : 'schedule'}
+                            </span>
+                            <div>
+                              <p className="text-[10px] font-label uppercase text-outline">Estado Pago</p>
+                              <p className="text-sm font-bold text-on-surface">
+                                {selectedOrder.totally_paid ? 'Pagado' : `Abonado (${formatCLP(Number(selectedOrder.mount_paid || 0))})`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`material-symbols-outlined text-xl ${(selectedOrder.status ?? 1) === 2 ? 'text-emerald-500' : (selectedOrder.status ?? 1) === 0 ? 'text-red-500' : 'text-amber-500'}`}>
+                              {(selectedOrder.status ?? 1) === 2 ? 'check_circle' : (selectedOrder.status ?? 1) === 0 ? 'cancel' : 'local_shipping'}
+                            </span>
+                            <div>
+                              <p className="text-[10px] font-label uppercase text-outline">Estado Entrega</p>
+                              <p className="text-sm font-bold text-on-surface">
+                                {(selectedOrder.status ?? 1) === 0 ? 'Eliminado' : (selectedOrder.status ?? 1) === 2 ? 'Entregado' : 'Pendiente'}
+                              </p>
+                            </div>
+                          </div>
+                          {selectedOrder.comment && (
+                            <div className="flex items-center gap-3">
+                              <span className="material-symbols-outlined text-primary text-xl">comment</span>
+                              <div>
+                                <p className="text-[10px] font-label uppercase text-outline">Comentario</p>
+                                <p className="text-sm text-on-surface">{selectedOrder.comment}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="bg-surface-container-low rounded-xl p-4">
+                          <h4 className="text-[10px] font-label uppercase tracking-widest text-outline font-bold mb-3">Productos</h4>
+                          <div className="space-y-2">
+                            {selectedOrder.products?.map((p: any) => (
+                              <div key={p.id} className={`flex items-center justify-between rounded-lg p-3 ${p.removed ? 'bg-gray-50 line-through' : 'bg-surface-container-lowest'}`}>
+                                <div className="flex-1">
+                                  <p className={`text-sm font-bold ${p.removed ? 'text-gray-400' : 'text-on-surface'}`}>{p.name}</p>
+                                  <p className={`text-[10px] ${p.removed ? 'text-gray-300' : 'text-outline'}`}>x{p.quantity}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className={`text-sm font-bold ${p.removed ? 'text-gray-400' : 'text-primary'}`}>{formatCLP(Number(p.unit_value))}</p>
+                                  {p.removed && <span className="text-[9px] text-red-400 font-bold">(Eliminado)</span>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 pt-2">
+                          <button
+                            onClick={openEditModal}
+                            className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold text-sm py-3 px-4 rounded-xl shadow-sm hover:opacity-90 transition-all"
+                          >
+                            <span className="material-symbols-outlined text-lg">edit</span>
+                            Editar Pedido
+                          </button>
+                          <button
+                            onClick={() => handlePrintOrder(selectedOrder.id)}
+                            disabled={printLoading}
+                            className="w-full flex items-center justify-center gap-2 bg-[#fec178] text-[#784d0d] font-bold text-sm py-3 px-4 rounded-xl shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+                          >
+                            <span className="material-symbols-outlined text-lg">print</span>
+                            {printLoading ? 'Imprimiendo...' : 'Imprimir'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteOrder(selectedOrder.id)}
+                            disabled={deleteLoading}
+                            className="w-full flex items-center justify-center gap-2 bg-error-container text-on-error-container font-bold text-sm py-3 px-4 rounded-xl shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+                          >
+                            <span className="material-symbols-outlined text-lg">delete</span>
+                            {deleteLoading ? 'Eliminando...' : 'Eliminar Pedido'}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -649,6 +874,7 @@ export default function VerPedidos() {
                 <div>
                   <h2 className="text-xl font-headline font-extrabold text-primary">Editar Pedido #{selectedOrder.id}</h2>
                   <p className="text-xs font-label text-outline mt-0.5">Cliente: <span className="font-bold text-on-surface">{selectedOrder.client?.name}</span></p>
+                  <p className="text-xs font-label text-outline mt-0.5">Total: <span className="font-bold text-on-surface">{Number(selectedOrder.value) === 0 ? 'Pendiente' : formatCLP(Number(selectedOrder.value))}</span></p>
                 </div>
                 <button className="material-symbols-outlined text-outline hover:text-on-surface" onClick={() => setIsEditModalOpen(false)}>close</button>
               </div>
@@ -684,7 +910,7 @@ export default function VerPedidos() {
                     {editProducts.map((p) => (
                       <div key={p.id} className="flex flex-col md:grid md:grid-cols-12 gap-2 md:items-center bg-surface-container-low rounded-lg p-2.5 border border-outline-variant/20">
                         {/* Product Search */}
-                        <div className="md:col-span-7 relative w-full">
+                        <div className="md:col-span-5 relative w-full">
                           <input
                             type="text"
                             required
@@ -716,7 +942,7 @@ export default function VerPedidos() {
                         </div>
 
                         {/* Quantity */}
-                        <div className="flex md:col-span-3 items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10 h-8 shrink-0">
+                        <div className="flex md:col-span-2 items-center bg-surface-container-highest rounded-md overflow-hidden border border-outline-variant/10 h-8 shrink-0">
                           <button
                             type="button"
                             onClick={() => handleUpdateEditQuantity(p.id, -1)}
@@ -731,7 +957,7 @@ export default function VerPedidos() {
                             maxLength={3}
                             onChange={(e) => {
                               const newQuantity = parseInt(e.target.value.replace(/\D/g, '')) || 1;
-                              setEditProducts(editProducts.map(prod => prod.id === p.id ? { ...prod, quantity: newQuantity, price: (prod.basePrice || 0) * newQuantity } : prod));
+                              setEditProducts(editProducts.map(prod => prod.id === p.id ? { ...prod, quantity: newQuantity, price: (prod.product_value || 0) * newQuantity } : prod));
                             }}
                           />
                           <button
@@ -743,8 +969,22 @@ export default function VerPedidos() {
                           </button>
                         </div>
 
+                        {/* Unit Price (product_value) */}
+                        <div className="md:col-span-4 relative">
+                          <input
+                            type="text"
+                            className="w-full bg-surface-container-highest rounded-md border border-outline-variant/10 text-xs font-bold py-1.5 px-2.5 h-8 focus:ring-1 focus:ring-primary text-right text-secondary"
+                            value={p.product_value ? formatCLP(p.product_value) : ''}
+                            placeholder="$ Unitario"
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value.replace(/\D/g, '')) || 0;
+                              setEditProducts(editProducts.map(prod => prod.id === p.id ? { ...prod, product_value: val, basePrice: val, price: val * prod.quantity } : prod));
+                            }}
+                          />
+                        </div>
+
                         {/* Delete row */}
-                        <div className="md:col-span-2 flex justify-end shrink-0">
+                        <div className="md:col-span-1 flex justify-end shrink-0">
                           <button
                             type="button"
                             onClick={() => handleDeleteEditProduct(p.id)}
@@ -756,6 +996,14 @@ export default function VerPedidos() {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* Edit Order Total */}
+                <div className="bg-surface-container-highest/60 rounded-lg p-3 border border-outline-variant/30 flex justify-between items-center">
+                  <span className="text-[10px] font-label uppercase tracking-widest text-outline font-bold">Total del Pedido</span>
+                  <span className="text-xl font-headline font-extrabold text-primary">
+                    {formatCLP(editProducts.reduce((acc, p) => acc + (p.price || 0), 0))}
+                  </span>
                 </div>
 
                 {editError && (
@@ -795,8 +1043,8 @@ export default function VerPedidos() {
                   <h2 className="text-xl font-headline font-extrabold text-primary">Reporte de Pedidos</h2>
                   <p className="text-xs font-label text-outline mt-0.5">Selecciona el rango de fechas para imprimir</p>
                 </div>
-                <button 
-                  className="material-symbols-outlined text-outline hover:text-on-surface" 
+                <button
+                  className="material-symbols-outlined text-outline hover:text-on-surface"
                   onClick={() => { setIsReportModalOpen(false); setReportError(null); }}
                 >
                   close

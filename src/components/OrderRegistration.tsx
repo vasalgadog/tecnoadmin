@@ -207,7 +207,8 @@ export default function OrderRegistration() {
       comment: comment,
       products: products.filter(p => p.name.trim() !== '' && p.db_id).map(p => ({
         product_id: p.db_id,
-        quantity: p.quantity
+        quantity: p.quantity,
+        product_value: p.price
       }))
     };
 

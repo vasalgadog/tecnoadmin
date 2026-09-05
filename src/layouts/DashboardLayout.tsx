@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { formatCLP, parseCLP } from '../utils/formatters';
+import DeliverOrderModal from '../components/DeliverOrderModal';
 
 const navItems = [
   { path: '/', icon: 'grid_view', label: 'Inicio' },
@@ -44,6 +45,9 @@ export default function DashboardLayout() {
   const [closeMonedas, setCloseMonedas] = useState('');
   const [closeVouchers, setCloseVouchers] = useState('');
   const [closeOtros, setCloseOtros] = useState('');
+
+  // Deliver Order Modal State
+  const [isDeliverModalOpen, setIsDeliverModalOpen] = useState(false);
 
   const handleCLPChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -141,6 +145,17 @@ export default function DashboardLayout() {
           </div>
           
           <div className="flex items-center space-x-3 md:space-x-6">
+            {/* Deliver Order Button - Solo visible en Inicio */}
+            {location.pathname === '/' && (
+              <button
+                onClick={() => setIsDeliverModalOpen(true)}
+                className="bg-emerald-500 text-white px-3 md:px-5 py-2 rounded-lg text-sm font-medium shadow-sm hover:opacity-90 transition-all flex items-center"
+              >
+                <span className="material-symbols-outlined text-sm mr-0 md:mr-2">local_shipping</span>
+                <span className="hidden md:inline">Entregar pedido</span>
+              </button>
+            )}
+
             {/* Till Switch Button (Oculto según Paso 1.1) */}
             <button 
               style={{ display: 'none' }}
@@ -289,6 +304,11 @@ export default function DashboardLayout() {
           <Outlet />
         </div>
       </main>
+
+      <DeliverOrderModal
+        isOpen={isDeliverModalOpen}
+        onClose={() => setIsDeliverModalOpen(false)}
+      />
     </div>
   );
 }
