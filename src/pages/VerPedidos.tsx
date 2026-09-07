@@ -286,7 +286,12 @@ export default function VerPedidos() {
     }
   };
 
-  const fetchOrders = useCallback(async (currentPage: number, searchTerm: string, direction: 'desc' | 'asc', field: 'delivery_on' | 'created_at') => {
+  const fetchOrders = useCallback(async (
+    currentPage: number,
+    searchTerm: string,
+    direction: 'desc' | 'asc',
+    field: 'delivery_on' | 'created_at'
+  ) => {
     setLoading(true);
     try {
       const activeStatuses: number[] = [];
@@ -299,14 +304,14 @@ export default function VerPedidos() {
         p_limit: limit,
         p_search: searchTerm,
         p_order_dir: direction,
-        p_statuses: activeStatuses // <--- Pasar array numérico
+        p_order_by: field, // Usar 'field' resuelve el error de build
+        p_statuses: activeStatuses
       });
 
       if (error) throw error;
 
       const response: OrdersResponse = res;
 
-      // Asignar directamente lo devuelto por el servidor
       setData(response.data || []);
       setHasMore(currentPage < (response.meta?.total_pages || 1));
       setTotalCount(response.meta?.total_count || 0);
