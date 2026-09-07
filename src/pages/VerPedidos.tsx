@@ -289,39 +289,25 @@ export default function VerPedidos() {
   const fetchOrders = useCallback(async (currentPage: number, searchTerm: string, direction: 'desc' | 'asc', field: 'delivery_on' | 'created_at') => {
     setLoading(true);
     try {
+      const activeStatuses: number[] = [];
+      if (filterPendientes) activeStatuses.push(1);
+      if (filterEntregados) activeStatuses.push(2);
+      if (filterEliminados) activeStatuses.push(0);
+
       const { data: res, error } = await supabase.rpc('get_orders_paginated', {
         p_page: currentPage,
         p_limit: limit,
         p_search: searchTerm,
-        p_order_dir: direction
+        p_order_dir: direction,
+        p_statuses: activeStatuses // <--- Pasar array numérico
       });
 
       if (error) throw error;
 
       const response: OrdersResponse = res;
-      let filteredData = response.data || [];
 
-      // Apply client-side filters based on status
-      // status: 0 = eliminado, 1 = pendiente, 2 = entregado
-      const activeFilters: number[] = [];
-      if (filterPendientes) activeFilters.push(1);
-      if (filterEntregados) activeFilters.push(2);
-      if (filterEliminados) activeFilters.push(0);
-
-      if (activeFilters.length > 0) {
-        filteredData = filteredData.filter((order: Order) => {
-          return activeFilters.includes(order.status ?? 0);
-        });
-      }
-
-      // Client-side sort by the selected field
-      filteredData.sort((a: Order, b: Order) => {
-        const dateA = new Date(a[field] || a.created_at || a.create_on || 0).getTime();
-        const dateB = new Date(b[field] || b.created_at || b.create_on || 0).getTime();
-        return direction === 'desc' ? dateB - dateA : dateA - dateB;
-      });
-
-      setData(filteredData);
+      // Asignar directamente lo devuelto por el servidor
+      setData(response.data || []);
       setHasMore(currentPage < (response.meta?.total_pages || 1));
       setTotalCount(response.meta?.total_count || 0);
       setTotalPages(response.meta?.total_pages || 1);
@@ -573,33 +559,30 @@ export default function VerPedidos() {
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => { setFilterPendientes(!filterPendientes); setPage(1); }}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-                    filterPendientes
-                      ? 'bg-amber-500 text-white shadow-sm'
-                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filterPendientes
+                    ? 'bg-amber-500 text-white shadow-sm'
+                    : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[14px] mr-1.5">schedule</span>
                   Pendientes
                 </button>
                 <button
                   onClick={() => { setFilterEntregados(!filterEntregados); setPage(1); }}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-                    filterEntregados
-                      ? 'bg-emerald-500 text-white shadow-sm'
-                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filterEntregados
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[14px] mr-1.5">check_circle</span>
                   Entregados
                 </button>
                 <button
                   onClick={() => { setFilterEliminados(!filterEliminados); setPage(1); }}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-                    filterEliminados
-                      ? 'bg-red-500 text-white shadow-sm'
-                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filterEliminados
+                    ? 'bg-red-500 text-white shadow-sm'
+                    : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[14px] mr-1.5">delete</span>
                   Eliminados

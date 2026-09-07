@@ -31,7 +31,7 @@ export const formatChileanPhone = (value: string): string => {
   if (!value) return '';
 
   let digits = value.replace(/[^\d]/g, '');
-  
+
   if (digits.length === 0) return '';
 
   // Allow deleting the prefix entirely step-by-step
@@ -47,9 +47,9 @@ export const formatChileanPhone = (value: string): string => {
   // Works flawlessly for Mobile (9 1234 5678) 
   // and Santiago Landlines (2 1234 5678) 
   // and Regional (3 2123 4567 - visual offset)
-  
+
   let formatted = '+56';
-  
+
   if (digits.length > 0) {
     formatted += ` ${digits.substring(0, 1)}`;
   }
@@ -63,36 +63,30 @@ export const formatChileanPhone = (value: string): string => {
   return formatted;
 };
 
-const TIMEZONE = 'America/Santiago';
-
 /**
- * Formats an ISO date string to Chilean locale with fixed timezone.
- * Example: "2026-09-05T14:00:00.000Z" -> "05/09/2026 10:00"
+ * Formatea un string "YYYY-MM-DDTHH:mm:ss" a "DD/MM/YYYY HH:mm"
+ * Mantiene estrictamente el texto original de la BD sin alterar horas.
  */
 export const formatDateTime = (isoString: string): string => {
-  const date = new Date(isoString);
-  if (isNaN(date.getTime())) return '-';
-  return new Intl.DateTimeFormat('es-CL', {
-    timeZone: TIMEZONE,
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(date);
+  if (!isoString) return '-';
+
+  // Extrae fecha y hora del string (ej: "2026-09-17T16:00:00" o "2026-09-17 16:00:00")
+  const match = isoString.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
+  if (!match) return '-';
+
+  const [, year, month, day, hour, minute] = match;
+  return `${day}/${month}/${year} ${hour}:${minute}`;
 };
 
 /**
- * Formats an ISO date string to date only (no time) with fixed timezone.
+ * Formatea un string a solo fecha "DD/MM/YYYY"
  */
 export const formatDateOnly = (isoString: string): string => {
-  const date = new Date(isoString);
-  if (isNaN(date.getTime())) return '-';
-  return new Intl.DateTimeFormat('es-CL', {
-    timeZone: TIMEZONE,
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(date);
+  if (!isoString) return '-';
+
+  const match = isoString.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return '-';
+
+  const [, year, month, day] = match;
+  return `${day}/${month}/${year}`;
 };
