@@ -9,11 +9,13 @@ export default function ProtectedRoute() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // 1. Carga inicial de sesión
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
     });
 
+    // 2. Suscripción a cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         setSession(null);
@@ -21,11 +23,30 @@ export default function ProtectedRoute() {
         navigate('/login', { replace: true });
         return;
       }
-      setSession(session);
+
+      if (session) {
+        setSession(session);
+      }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // 3. Forzar revalidación de sesión si el usuario vuelve a la pestaña tras mucho tiempo
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          // Si el token no se pudo renovar, forzar login
+          navigate('/login', { replace: true });
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [navigate]);
 
   if (loading) {

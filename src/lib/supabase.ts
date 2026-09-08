@@ -17,22 +17,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     headers: {
       'x-client-info': 'tecnoadmin',
     },
-    fetch: async (url, options = {}) => {
-      const headers = new Headers(options.headers || {});
-
-      try {
-        const { data } = await supabase.auth.getSession();
-        const token = data?.session?.access_token;
-        if (token) {
-          headers.set('Authorization', `Bearer ${token}`);
-        }
-      } catch {
-        // Continue with default headers if session fetch fails
-      }
-
+    // fetch nativo con timeout para evitar peticiones colgadas de 15s
+    fetch: (url, options = {}) => {
       return fetch(url, {
         ...options,
-        headers,
+        signal: options?.signal || AbortSignal.timeout(15000),
       });
     },
   },
