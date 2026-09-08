@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import './DataTable.css';
 
 export interface Column<T> {
@@ -34,7 +34,7 @@ export default function DataTable<T extends { id: string | number }>({ columns, 
             </tr>
           ) : (
             data.map((row) => (
-<>
+              <Fragment key={row.id}>
                   <tr
                     onClick={() => onRowClick && onRowClick(row)}
                     className="cursor-pointer hover:bg-primary-fixed/20 transition-colors"
@@ -52,7 +52,7 @@ export default function DataTable<T extends { id: string | number }>({ columns, 
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
             ))
           )}
         </tbody>

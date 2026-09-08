@@ -40,10 +40,9 @@ export default function VerPedidos() {
   const [orderField, setOrderField] = useState<'delivery_on' | 'created_at'>('delivery_on');
   const [hasMore, setHasMore] = useState(true);
 
-  // Filter States
-  const [filterPendientes, setFilterPendientes] = useState(true);
-  const [filterEntregados, setFilterEntregados] = useState(false);
-  const [filterEliminados, setFilterEliminados] = useState(false);
+  // Filter State (mutuamente excluyente)
+  // 1 = Pendientes (Default), 2 = Entregados, 0 = Eliminados, null = Todos
+  const [activeFilter, setActiveFilter] = useState<number | null>(1);
 
   // Selected order detail handling
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -294,18 +293,15 @@ export default function VerPedidos() {
   ) => {
     setLoading(true);
     try {
-      const activeStatuses: number[] = [];
-      if (filterPendientes) activeStatuses.push(1);
-      if (filterEntregados) activeStatuses.push(2);
-      if (filterEliminados) activeStatuses.push(0);
+      const statusesParam = activeFilter !== null ? [activeFilter] : null;
 
       const { data: res, error } = await supabase.rpc('get_orders_paginated', {
         p_page: currentPage,
         p_limit: limit,
         p_search: searchTerm,
         p_order_dir: direction,
-        p_order_by: field, // Usar 'field' resuelve el error de build
-        p_statuses: activeStatuses
+        p_order_by: field,
+        p_statuses: statusesParam
       });
 
       if (error) throw error;
@@ -321,7 +317,7 @@ export default function VerPedidos() {
     } finally {
       setLoading(false);
     }
-  }, [limit, filterPendientes, filterEntregados, filterEliminados]);
+  }, [limit, activeFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -329,6 +325,11 @@ export default function VerPedidos() {
     }, 300);
     return () => clearTimeout(timer);
   }, [page, search, orderDir, orderField, fetchOrders]);
+
+  const handleFilterToggle = (selectedStatus: number) => {
+    setPage(1); // Reiniciar a la primera página para evitar desfases
+    setActiveFilter(prev => (prev === selectedStatus ? null : selectedStatus));
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -563,8 +564,8 @@ export default function VerPedidos() {
 
               <div className="flex flex-wrap items-center gap-2">
                 <button
-                  onClick={() => { setFilterPendientes(!filterPendientes); setPage(1); }}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filterPendientes
+                  onClick={() => handleFilterToggle(1)}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeFilter === 1
                     ? 'bg-amber-500 text-white shadow-sm'
                     : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
                     }`}
@@ -573,8 +574,8 @@ export default function VerPedidos() {
                   Pendientes
                 </button>
                 <button
-                  onClick={() => { setFilterEntregados(!filterEntregados); setPage(1); }}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filterEntregados
+                  onClick={() => handleFilterToggle(2)}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeFilter === 2
                     ? 'bg-emerald-500 text-white shadow-sm'
                     : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
                     }`}
@@ -583,8 +584,8 @@ export default function VerPedidos() {
                   Entregados
                 </button>
                 <button
-                  onClick={() => { setFilterEliminados(!filterEliminados); setPage(1); }}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${filterEliminados
+                  onClick={() => handleFilterToggle(0)}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${activeFilter === 0
                     ? 'bg-red-500 text-white shadow-sm'
                     : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
                     }`}
