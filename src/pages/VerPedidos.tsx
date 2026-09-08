@@ -393,7 +393,11 @@ export default function VerPedidos() {
     {
       header: 'Total',
       accessor: 'value',
-      render: (row) => formatCLP(Number(row.value))
+      render: (row) => (
+        Number(row.value) === 0
+          ? <span className="text-outline italic">Pendiente</span>
+          : formatCLP(Number(row.value))
+      )
     },
     {
       header: 'Estado Pago',
