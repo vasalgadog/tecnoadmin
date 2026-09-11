@@ -686,6 +686,10 @@ export default function VerPedidos() {
                         {selectedOrder.totally_paid ? 'Pagado' : `Abonado (${formatCLP(Number(selectedOrder.mount_paid || 0))})`}
                       </p>
                       <p>
+                        <strong>Método Pago:</strong>{' '}
+                        {selectedOrder.mount_paid === 1 ? 'Efectivo' : selectedOrder.mount_paid === 2 ? 'Tarjeta' : selectedOrder.mount_paid === 3 ? 'Transferencia' : '—'}
+                      </p>
+                      <p>
                         <strong>Estado Entrega:</strong>{' '}
                         {(selectedOrder.status ?? 1) === 0 ? 'Eliminado' : (selectedOrder.status ?? 1) === 2 ? 'Entregado' : 'Pendiente'}
                       </p>
@@ -810,6 +814,15 @@ export default function VerPedidos() {
                               <p className="text-[10px] font-label uppercase text-outline">Estado Pago</p>
                               <p className="text-sm font-bold text-on-surface">
                                 {selectedOrder.totally_paid ? 'Pagado' : `Abonado (${formatCLP(Number(selectedOrder.mount_paid || 0))})`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="material-symbols-outlined text-primary text-xl">credit_card</span>
+                            <div>
+                              <p className="text-[10px] font-label uppercase text-outline">Método Pago</p>
+                              <p className="text-sm font-bold text-on-surface">
+                                {selectedOrder.mount_paid === 1 ? 'Efectivo' : selectedOrder.mount_paid === 2 ? 'Tarjeta' : selectedOrder.mount_paid === 3 ? 'Transferencia' : '—'}
                               </p>
                             </div>
                           </div>
