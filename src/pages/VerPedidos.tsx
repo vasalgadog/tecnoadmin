@@ -49,6 +49,7 @@ export default function VerPedidos() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deliverLoading, setDeliverLoading] = useState<number | null>(null);
   const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -68,12 +69,12 @@ export default function VerPedidos() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
-  const fetchOrderDetail = async (orderId: number) => {
+  const fetchOrderDetail = async (orderId: number, listStatus?: number) => {
     setDetailLoading(true);
     try {
       const { data: res, error } = await supabase.rpc('get_order_detail', { p_order_id: orderId });
       if (error) throw error;
-      setSelectedOrder({ ...res, id: orderId });
+      setSelectedOrder({ ...res, id: orderId, status: res?.status ?? listStatus ?? 1 });
     } catch (err) {
       console.error('Error fetching order detail:', err);
     } finally {
@@ -111,6 +112,21 @@ export default function VerPedidos() {
       alert('Error al eliminar pedido: ' + (err.message || 'Error desconocido'));
     } finally {
       setDeleteLoading(false);
+    }
+  };
+
+  const handleDeliverOrder = async (orderId: number) => {
+    setDeliverLoading(orderId);
+    try {
+      const { error } = await supabase.rpc('deliver_order', { p_order_id: orderId });
+      if (error) throw error;
+      setSelectedOrder(null);
+      fetchOrders(page, search, orderDir, orderField);
+    } catch (err: any) {
+      console.error('Error al entregar pedido:', err);
+      alert('Error al entregar pedido: ' + (err.message || 'Error desconocido'));
+    } finally {
+      setDeliverLoading(null);
     }
   };
 
@@ -266,7 +282,7 @@ export default function VerPedidos() {
       if (error) throw error;
       alert('Pedido editado correctamente.');
       setIsEditModalOpen(false);
-      fetchOrderDetail(selectedOrder.id);
+      fetchOrderDetail(selectedOrder.id, selectedOrder.status);
       fetchOrders(page, search, orderDir, orderField);
     } catch (err: any) {
       console.error('Error al editar pedido:', err);
@@ -277,8 +293,8 @@ export default function VerPedidos() {
   };
 
   const handleRowClick = (row: Order) => {
-    // Load detailed info for the clicked order
-    fetchOrderDetail(row.id);
+    // Load detailed info for the clicked order, passing status from the list
+    fetchOrderDetail(row.id, row.status);
     // Open mobile detail panel
     if (window.innerWidth < 768) {
       setIsMobileDetailOpen(true);
@@ -686,6 +702,20 @@ export default function VerPedidos() {
                         </ul>
                       </div>
                       <div className="mt-4 pt-3 border-t border-outline-variant/20 flex flex-col gap-2">
+                        {(selectedOrder.status ?? 1) === 1 && (
+                          <button
+                            onClick={() => handleDeliverOrder(selectedOrder.id)}
+                            disabled={deliverLoading === selectedOrder.id}
+                            className="w-full flex items-center justify-center gap-2 bg-emerald-500 text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+                          >
+                            {deliverLoading === selectedOrder.id ? (
+                              <span className="material-symbols-outlined text-base animate-spin">autorenew</span>
+                            ) : (
+                              <span className="material-symbols-outlined text-base">local_shipping</span>
+                            )}
+                            {deliverLoading === selectedOrder.id ? 'Entregando...' : 'Entregar pedido'}
+                          </button>
+                        )}
                         <button
                           onClick={openEditModal}
                           className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold text-xs py-2 px-3 rounded-lg shadow-sm hover:opacity-90 transition-all"
@@ -824,6 +854,20 @@ export default function VerPedidos() {
                         </div>
 
                         <div className="space-y-2 pt-2">
+                          {(selectedOrder.status ?? 1) === 1 && (
+                            <button
+                              onClick={() => handleDeliverOrder(selectedOrder.id)}
+                              disabled={deliverLoading === selectedOrder.id}
+                              className="w-full flex items-center justify-center gap-2 bg-emerald-500 text-white font-bold text-sm py-3 px-4 rounded-xl shadow-sm hover:opacity-90 transition-all disabled:opacity-50"
+                            >
+                              {deliverLoading === selectedOrder.id ? (
+                                <span className="material-symbols-outlined text-lg animate-spin">autorenew</span>
+                              ) : (
+                                <span className="material-symbols-outlined text-lg">local_shipping</span>
+                              )}
+                              {deliverLoading === selectedOrder.id ? 'Entregando...' : 'Entregar pedido'}
+                            </button>
+                          )}
                           <button
                             onClick={openEditModal}
                             className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold text-sm py-3 px-4 rounded-xl shadow-sm hover:opacity-90 transition-all"
